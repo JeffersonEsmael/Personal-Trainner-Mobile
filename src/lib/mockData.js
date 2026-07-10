@@ -38,13 +38,13 @@ export const mockAcademies = {
     }
 };
 
-export const mockExercises = [
+const detailedExercises = [
     {
         id: 'ex-1',
         name: 'Supino Reto com Barra',
         muscle_group: 'Peito',
-        equipment: 'Barra e Banco',
-        video_url: 'https://assets.mixkit.co/videos/preview/mixkit-man-working-out-in-the-gym-42299-large.mp4', // Free demo video
+        equipment: 'Barra',
+        video_url: 'https://assets.mixkit.co/videos/preview/mixkit-man-working-out-in-the-gym-42299-large.mp4',
         thumbnail_url: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=150&auto=format&fit=crop',
         description: 'O supino reto é um exercício clássico de treinamento com pesos que visa principalmente o músculo peitoral maior, bem como o deltoide anterior e tríceps.',
         execution_steps: [
@@ -65,7 +65,7 @@ export const mockExercises = [
         id: 'ex-2',
         name: 'Rosca Direta com Barra',
         muscle_group: 'Bíceps',
-        equipment: 'Barra W ou Reta',
+        equipment: 'Barra',
         video_url: 'https://assets.mixkit.co/videos/preview/mixkit-athletic-man-lifting-barbell-in-gym-42297-large.mp4',
         thumbnail_url: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=150&auto=format&fit=crop',
         description: 'Um dos exercícios mais eficazes para isolamento do bíceps braquial.',
@@ -86,8 +86,8 @@ export const mockExercises = [
     {
         id: 'ex-3',
         name: 'Agachamento Livre',
-        muscle_group: 'Quadríceps / Pernas',
-        equipment: 'Barra e Rack',
+        muscle_group: 'Quadríceps',
+        equipment: 'Barra',
         video_url: 'https://assets.mixkit.co/videos/preview/mixkit-young-man-training-legs-with-squats-in-gym-43026-large.mp4',
         thumbnail_url: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=150&auto=format&fit=crop',
         description: 'Exercício composto fundamental para o desenvolvimento de membros inferiores, fortalecendo quadríceps, glúteos e core.',
@@ -107,9 +107,9 @@ export const mockExercises = [
     },
     {
         id: 'ex-4',
-        name: 'Leg Press 45º',
+        name: 'Leg Press 45°',
         muscle_group: 'Quadríceps',
-        equipment: 'Máquina Leg Press',
+        equipment: 'Máquinas',
         video_url: 'https://assets.mixkit.co/videos/preview/mixkit-athlete-man-working-out-his-legs-at-the-gym-42301-large.mp4',
         thumbnail_url: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=150&auto=format&fit=crop',
         description: 'Exercício em máquina focado no desenvolvimento de quadríceps, glúteos e isquiotibiais com excelente suporte para a coluna.',
@@ -150,9 +150,9 @@ export const mockExercises = [
     },
     {
         id: 'ex-6',
-        name: 'Puxada Frontal',
+        name: 'Puxada Frente Aberta',
         muscle_group: 'Costas',
-        equipment: 'Polia Alta (Pulley)',
+        equipment: 'Máquinas',
         video_url: 'https://assets.mixkit.co/videos/preview/mixkit-athletic-man-exercising-back-on-pulley-machine-42296-large.mp4',
         thumbnail_url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=150&auto=format&fit=crop',
         description: 'Exercício clássico de tração vertical para o desenvolvimento do músculo grande dorsal (costas largas).',
@@ -174,7 +174,7 @@ export const mockExercises = [
         id: 'ex-7',
         name: 'Tríceps Corda',
         muscle_group: 'Tríceps',
-        equipment: 'Polia Alta com Corda',
+        equipment: 'Cabos',
         video_url: 'https://assets.mixkit.co/videos/preview/mixkit-young-man-exercising-triceps-in-gym-43033-large.mp4',
         thumbnail_url: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=150&auto=format&fit=crop',
         description: 'Exercício de isolamento para a cabeça lateral e medial do tríceps.',
@@ -195,8 +195,8 @@ export const mockExercises = [
     {
         id: 'ex-8',
         name: 'Mesa Flexora',
-        muscle_group: 'Isquiotibiais / Posterior',
-        equipment: 'Mesa Flexora Máquina',
+        muscle_group: 'Posterior de coxa',
+        equipment: 'Máquinas',
         video_url: 'https://assets.mixkit.co/videos/preview/mixkit-man-training-hamstrings-on-machine-42300-large.mp4',
         thumbnail_url: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=150&auto=format&fit=crop',
         description: 'Excelente isolador para os músculos posteriores da coxa (isquiotibiais).',
@@ -207,7 +207,7 @@ export const mockExercises = [
             'Retorne os pés lentamente, controlando a força contrária do peso.'
         ],
         common_mistakes: [
-            'Elevar o quadril da mesa ao flexionar as pernas.',
+            'Elevar o quadril da mesa alinhado ao flexionar as pernas.',
             'Ajustar o rolo muito alto no tendão ou muito baixo no pé.',
             'Trancos na descida do peso.'
         ],
@@ -215,15 +215,193 @@ export const mockExercises = [
     }
 ];
 
+// Helper to get placeholders for generated exercises
+function getPlaceholderThumb(group) {
+    switch (group) {
+        case 'Peito':
+            return 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=150&auto=format&fit=crop';
+        case 'Costas':
+            return 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=150&auto=format&fit=crop';
+        case 'Ombros':
+            return 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=150&auto=format&fit=crop';
+        case 'Bíceps':
+        case 'Tríceps':
+        case 'Trapézio':
+        case 'Antebraço':
+            return 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=150&auto=format&fit=crop';
+        default:
+            return 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=150&auto=format&fit=crop';
+    }
+}
+
+// Complete Matrix from user request
+const rawMatrix = [
+    // Peito
+    { name: 'Voador', group: 'Peito', equip: 'Máquinas' },
+    { name: 'Supino máquina', group: 'Peito', equip: 'Máquinas' },
+    { name: 'Supino inclinado máquina', group: 'Peito', equip: 'Máquinas' },
+    { name: 'Supino reto (Barra)', group: 'Peito', equip: 'Barra' },
+    { name: 'Supino inclinado (Barra)', group: 'Peito', equip: 'Barra' },
+    { name: 'Supino declinado (Barra)', group: 'Peito', equip: 'Barra' },
+    { name: 'Supino reto (Halteres)', group: 'Peito', equip: 'Halteres' },
+    { name: 'Supino inclinado (Halteres)', group: 'Peito', equip: 'Halteres' },
+    { name: 'Crucifixo reto', group: 'Peito', equip: 'Halteres' },
+    { name: 'Crucifixo inclinado', group: 'Peito', equip: 'Halteres' },
+    { name: 'Pullover', group: 'Peito', equip: 'Halteres' },
+    { name: 'Crossover alto', group: 'Peito', equip: 'Cabos' },
+    { name: 'Crossover médio', group: 'Peito', equip: 'Cabos' },
+    { name: 'Crossover baixo', group: 'Peito', equip: 'Cabos' },
+    { name: 'Flexão de braço', group: 'Peito', equip: 'Peso corporal' },
+
+    // Costas
+    { name: 'Puxada frente aberta', group: 'Costas', equip: 'Máquinas' },
+    { name: 'Puxada frente fechada', group: 'Costas', equip: 'Máquinas' },
+    { name: 'Remada baixa', group: 'Costas', equip: 'Máquinas' },
+    { name: 'Remada articulada', group: 'Costas', equip: 'Máquinas' },
+    { name: 'Pulldown máquina', group: 'Costas', equip: 'Máquinas' },
+    { name: 'Remada curvada', group: 'Costas', equip: 'Barra' },
+    { name: 'Levantamento terra', group: 'Costas', equip: 'Barra' },
+    { name: 'Remada unilateral', group: 'Costas', equip: 'Halteres' },
+    { name: 'Pullover no cabo', group: 'Costas', equip: 'Cabos' },
+    { name: 'Remada baixa triangulo', group: 'Costas', equip: 'Cabos' },
+    { name: 'Barra fixa', group: 'Costas', equip: 'Peso corporal' },
+
+    // Ombros
+    { name: 'Desenvolvimento máquina', group: 'Ombros', equip: 'Máquinas' },
+    { name: 'Elevação lateral máquina', group: 'Ombros', equip: 'Máquinas' },
+    { name: 'Crucifixo inverso máquina', group: 'Ombros', equip: 'Máquinas' },
+    { name: 'Desenvolvimento', group: 'Ombros', equip: 'Halteres' },
+    { name: 'Elevação lateral', group: 'Ombros', equip: 'Halteres' },
+    { name: 'Elevação frontal', group: 'Ombros', equip: 'Halteres' },
+    { name: 'Crucifixo inverso', group: 'Ombros', equip: 'Halteres' },
+    { name: 'Arnold Press', group: 'Ombros', equip: 'Halteres' },
+    { name: 'Desenvolvimento militar', group: 'Ombros', equip: 'Barra' },
+    { name: 'Elevação lateral (Cabos)', group: 'Ombros', equip: 'Cabos' },
+    { name: 'Face Pull', group: 'Ombros', equip: 'Cabos' },
+
+    // Bíceps
+    { name: 'Rosca direta', group: 'Bíceps', equip: 'Barra' },
+    { name: 'Rosca W (EZ)', group: 'Bíceps', equip: 'Barra' },
+    { name: 'Rosca alternada', group: 'Bíceps', equip: 'Halteres' },
+    { name: 'Rosca martelo', group: 'Bíceps', equip: 'Halteres' },
+    { name: 'Rosca concentrada', group: 'Bíceps', equip: 'Halteres' },
+    { name: 'Rosca inclinada', group: 'Bíceps', equip: 'Halteres' },
+    { name: 'Rosca Scott máquina', group: 'Bíceps', equip: 'Máquinas' },
+    { name: 'Rosca na polia baixa', group: 'Bíceps', equip: 'Cabos' },
+    { name: 'Rosca corda', group: 'Bíceps', equip: 'Cabos' },
+
+    // Tríceps
+    { name: 'Tríceps corda', group: 'Tríceps', equip: 'Cabos' },
+    { name: 'Tríceps barra reta', group: 'Tríceps', equip: 'Cabos' },
+    { name: 'Tríceps barra V', group: 'Tríceps', equip: 'Cabos' },
+    { name: 'Tríceps francês', group: 'Tríceps', equip: 'Halteres' },
+    { name: 'Coice', group: 'Tríceps', equip: 'Halteres' },
+    { name: 'Tríceps testa', group: 'Tríceps', equip: 'Barra' },
+    { name: 'Supino fechado', group: 'Tríceps', equip: 'Barra' },
+    { name: 'Mergulho assistido', group: 'Tríceps', equip: 'Máquinas' },
+    { name: 'Paralelas', group: 'Tríceps', equip: 'Peso corporal' },
+    { name: 'Banco (Bench Dip)', group: 'Tríceps', equip: 'Peso corporal' },
+
+    // Quadríceps
+    { name: 'Leg Press 45°', group: 'Quadríceps', equip: 'Máquinas' },
+    { name: 'Leg Press horizontal', group: 'Quadríceps', equip: 'Máquinas' },
+    { name: 'Cadeira extensora', group: 'Quadríceps', equip: 'Máquinas' },
+    { name: 'Hack Machine', group: 'Quadríceps', equip: 'Máquinas' },
+    { name: 'Smith', group: 'Quadríceps', equip: 'Máquinas' },
+    { name: 'Agachamento livre', group: 'Quadríceps', equip: 'Barra' },
+    { name: 'Agachamento frontal', group: 'Quadríceps', equip: 'Barra' },
+    { name: 'Goblet Squat', group: 'Quadríceps', equip: 'Halteres' },
+    { name: 'Afundo', group: 'Quadríceps', equip: 'Halteres' },
+    { name: 'Passada', group: 'Quadríceps', equip: 'Halteres' },
+    { name: 'Bulgarian Split Squat', group: 'Quadríceps', equip: 'Halteres' },
+
+    // Posterior de coxa
+    { name: 'Mesa flexora', group: 'Posterior de coxa', equip: 'Máquinas' },
+    { name: 'Flexora sentada', group: 'Posterior de coxa', equip: 'Máquinas' },
+    { name: 'Stiff', group: 'Posterior de coxa', equip: 'Barra' },
+    { name: 'Levantamento terra romeno', group: 'Posterior de coxa', equip: 'Barra' },
+    { name: 'Stiff com halteres', group: 'Posterior de coxa', equip: 'Halteres' },
+
+    // Glúteos
+    { name: 'Glúteo máquina', group: 'Glúteos', equip: 'Máquinas' },
+    { name: 'Abdutora', group: 'Glúteos', equip: 'Máquinas' },
+    { name: 'Hip Thrust', group: 'Glúteos', equip: 'Barra' },
+    { name: 'Coice no cabo', group: 'Glúteos', equip: 'Cabos' },
+    { name: 'Agachamento sumô', group: 'Glúteos', equip: 'Halteres' },
+
+    // Panturrilhas
+    { name: 'Panturrilha em pé', group: 'Panturrilhas', equip: 'Máquinas' },
+    { name: 'Panturrilha sentado', group: 'Panturrilhas', equip: 'Máquinas' },
+    { name: 'Panturrilha no Leg Press', group: 'Panturrilhas', equip: 'Máquinas' },
+    { name: 'Panturrilha Smith', group: 'Panturrilhas', equip: 'Máquinas' },
+
+    // Abdômen
+    { name: 'Abdominal máquina', group: 'Abdômen', equip: 'Máquinas' },
+    { name: 'Crunch', group: 'Abdômen', equip: 'Peso corporal' },
+    { name: 'Elevação de pernas', group: 'Abdômen', equip: 'Peso corporal' },
+    { name: 'Elevação de joelhos', group: 'Abdômen', equip: 'Peso corporal' },
+    { name: 'Prancha', group: 'Abdômen', equip: 'Peso corporal' },
+    { name: 'Prancha lateral', group: 'Abdômen', equip: 'Peso corporal' },
+    { name: 'Abdominal oblíquo', group: 'Abdômen', equip: 'Peso corporal' },
+    { name: 'Abdominal no cabo', group: 'Abdômen', equip: 'Cabos' },
+    { name: 'Ab Wheel', group: 'Abdômen', equip: 'Peso corporal' },
+
+    // Lombar
+    { name: 'Banco romano', group: 'Lombar', equip: 'Máquinas' },
+    { name: 'Hiperextensão', group: 'Lombar', equip: 'Peso corporal' },
+    { name: 'Superman', group: 'Lombar', equip: 'Peso corporal' },
+
+    // Trapézio
+    { name: 'Encolhimento com halteres', group: 'Trapézio', equip: 'Halteres' },
+    { name: 'Encolhimento barra', group: 'Trapézio', equip: 'Barra' },
+    { name: 'Remada alta', group: 'Trapézio', equip: 'Barra' },
+    { name: 'Face Pull', group: 'Trapézio', equip: 'Cabos' },
+
+    // Antebraço
+    { name: 'Rosca inversa', group: 'Antebraço', equip: 'Barra' },
+    { name: 'Rosca de punho', group: 'Antebraço', equip: 'Barra' },
+    { name: 'Rosca de punho reversa', group: 'Antebraço', equip: 'Barra' },
+    { name: 'Farmer Walk', group: 'Antebraço', equip: 'Halteres' }
+];
+
+// Generate final list of mockExercises dynamically to preserve original 8 detailed ones
+const generatedExercises = rawMatrix.map((item, index) => {
+    // Check if detailed exercises already contain this exercise
+    const existing = detailedExercises.find(e => e.name.toLowerCase() === item.name.toLowerCase());
+    if (existing) return null;
+
+    return {
+        id: `mat-ex-${index + 1}`,
+        name: item.name,
+        muscle_group: item.group,
+        equipment: item.equip,
+        video_url: 'https://assets.mixkit.co/videos/preview/mixkit-man-working-out-in-the-gym-42299-large.mp4',
+        thumbnail_url: getPlaceholderThumb(item.group),
+        description: `Exercício de ${item.name} focado em trabalhar o grupo muscular ${item.group}.`,
+        execution_steps: [
+            'Posicione-se confortavelmente na área ou aparelho adequado.',
+            'Mantenha a postura estabilizada e execute o movimento com foco e controle.',
+            'Retorne à posição de repouso controlando o peso.'
+        ],
+        common_mistakes: [
+            'Sacrificar a amplitude de movimento por excesso de carga.',
+            'Perder o alinhamento da coluna lombar ou cervical.'
+        ],
+        difficulty: 'beginner'
+    };
+}).filter(Boolean);
+
+export const mockExercises = [...detailedExercises, ...generatedExercises];
+
 export const mockWorkouts = [
     {
         id: 'w-1',
         name: 'Superiores — Peito, Tríceps e Ombro',
         letter: 'A',
         exercises: [
-            { id: 'we-1', exercise: mockExercises[0], sets: 3, reps: '12', rest_seconds: 60, order_index: 0, notes: 'Foco na cadência de descida' },
-            { id: 'we-2', exercise: mockExercises[4], sets: 3, reps: '12', rest_seconds: 45, order_index: 1, notes: 'Cotovelos levemente flexionados' },
-            { id: 'we-3', exercise: mockExercises[6], sets: 4, reps: '10', rest_seconds: 60, order_index: 2, notes: 'Abrir a corda no final' }
+            { id: 'we-1', exercise: mockExercises[0], sets: 3, reps: '12', rest_seconds: 60, weight_kg: 30, order_index: 0, notes: 'Foco na cadência de descida' },
+            { id: 'we-2', exercise: mockExercises[4], sets: 3, reps: '12', rest_seconds: 45, weight_kg: 10, order_index: 1, notes: 'Cotovelos levemente flexionados' },
+            { id: 'we-3', exercise: mockExercises[6], sets: 4, reps: '10', rest_seconds: 60, weight_kg: 25, order_index: 2, notes: 'Abrir a corda no final' }
         ]
     },
     {
@@ -231,9 +409,9 @@ export const mockWorkouts = [
         name: 'Inferiores — Quadríceps e Posterior',
         letter: 'B',
         exercises: [
-            { id: 'we-4', exercise: mockExercises[2], sets: 4, reps: '10', rest_seconds: 90, order_index: 0, notes: 'Descer até 90 graus' },
-            { id: 'we-5', exercise: mockExercises[3], sets: 3, reps: '12', rest_seconds: 60, order_index: 1, notes: 'Empurrar com o calcanhar' },
-            { id: 'we-6', exercise: mockExercises[7], sets: 3, reps: '12', rest_seconds: 60, order_index: 2, notes: 'Quadril colado na mesa' }
+            { id: 'we-4', exercise: mockExercises[2], sets: 4, reps: '10', rest_seconds: 90, weight_kg: 50, order_index: 0, notes: 'Descer até 90 graus' },
+            { id: 'we-5', exercise: mockExercises[3], sets: 3, reps: '12', rest_seconds: 60, weight_kg: 120, order_index: 1, notes: 'Empurrar com o calcanhar' },
+            { id: 'we-6', exercise: mockExercises[7], sets: 3, reps: '12', rest_seconds: 60, weight_kg: 20, order_index: 2, notes: 'Quadril colado na mesa' }
         ]
     },
     {
@@ -241,8 +419,8 @@ export const mockWorkouts = [
         name: 'Costas e Bíceps',
         letter: 'C',
         exercises: [
-            { id: 'we-7', exercise: mockExercises[5], sets: 3, reps: '12', rest_seconds: 60, order_index: 0, notes: 'Cotovelos para baixo' },
-            { id: 'we-8', exercise: mockExercises[1], sets: 3, reps: '10', rest_seconds: 60, order_index: 1, notes: 'Manter a postura ereta' }
+            { id: 'we-7', exercise: mockExercises[5], sets: 3, reps: '12', rest_seconds: 60, weight_kg: 40, order_index: 0, notes: 'Cotovelos para baixo' },
+            { id: 'we-8', exercise: mockExercises[1], sets: 3, reps: '10', rest_seconds: 60, weight_kg: 15, order_index: 1, notes: 'Manter a postura ereta' }
         ]
     }
 ];
@@ -250,15 +428,15 @@ export const mockWorkouts = [
 export const mockProfile = {
     id: 'user-joao-uuid',
     full_name: 'João Silva',
-    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop', // default photo profile
+    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop',
     phone: '(11) 98765-4321',
     role: 'student',
     student_details: {
         age: 24,
         weight: 76.5,
         height: 1.78,
-        goal: 'hypertrophy', // Hipertrofia
-        experience: 'beginner', // Iniciante
+        goal: 'hypertrophy',
+        experience: 'beginner',
         trainer_name: 'Prof. Lucas Ribeiro',
         gender: 'male'
     }
@@ -270,9 +448,9 @@ export const mockHistory = [
         workout_id: 'w-1',
         name: 'Superiores — Peito, Tríceps e Ombro',
         letter: 'A',
-        started_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000 - 3600 * 1000 * 2).toISOString(), // 4 days ago
+        started_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000 - 3600 * 1000 * 2).toISOString(),
         completed_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000 - 3600 * 1000 * 1.5).toISOString(),
-        duration_seconds: 1800, // 30 min
+        duration_seconds: 1800,
         exercises_completed: 3,
         exercises_total: 3
     },
@@ -281,9 +459,9 @@ export const mockHistory = [
         workout_id: 'w-2',
         name: 'Inferiores — Quadríceps e Posterior',
         letter: 'B',
-        started_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 - 3600 * 1000 * 3).toISOString(), // 2 days ago
+        started_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 - 3600 * 1000 * 3).toISOString(),
         completed_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 - 3600 * 1000 * 2.2).toISOString(),
-        duration_seconds: 2400, // 40 min
+        duration_seconds: 2400,
         exercises_completed: 3,
         exercises_total: 3
     }

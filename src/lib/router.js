@@ -139,8 +139,6 @@ class Router {
             // Add entry transition
             const viewWrapper = document.createElement('div');
             viewWrapper.className = 'view-transition-wrapper view-enter';
-            viewWrapper.style.height = '100%';
-            viewWrapper.style.width = '100%';
             viewWrapper.innerHTML = viewHtml;
             
             appEl.appendChild(viewWrapper);

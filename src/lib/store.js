@@ -46,12 +46,13 @@ class Store {
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
-                // Only load persistent user/profile/activeWorkout data
                 this.state.user = parsed.user || null;
                 this.state.profile = parsed.profile || null;
                 this.state.academy = parsed.academy || null;
                 this.state.activeWorkout = parsed.activeWorkout || null;
                 this.state.useMock = parsed.useMock !== undefined ? parsed.useMock : true;
+                this.state.workouts = parsed.workouts || [];
+                this.state.history = parsed.history || [];
             } catch (e) {
                 console.error("Error parsing local state", e);
             }
@@ -64,7 +65,9 @@ class Store {
             profile: this.state.profile,
             academy: this.state.academy,
             activeWorkout: this.state.activeWorkout,
-            useMock: this.state.useMock
+            useMock: this.state.useMock,
+            workouts: this.state.workouts,
+            history: this.state.history
         };
         localStorage.setItem('trainer_app_state', JSON.stringify(toSave));
     }
@@ -87,12 +90,20 @@ class Store {
     // Helper functions for mock integration
     initializeMockData(academySlug = 'alpha') {
         const academy = mockAcademies[academySlug] || mockAcademies['alpha'];
-        const profile = { ...mockProfile, academy_id: academy.id };
-        const workouts = mockWorkouts.map(w => ({ ...w, academy_id: academy.id }));
-        const history = mockHistory.map(h => ({ ...h, academy_id: academy.id }));
+        const profile = this.state.profile || { ...mockProfile, academy_id: academy.id };
+        
+        // Only load mock workouts if they are not already stored in the state (e.g. from local storage)
+        const workouts = (this.state.workouts && this.state.workouts.length > 0)
+            ? this.state.workouts
+            : mockWorkouts.map(w => ({ ...w, academy_id: academy.id }));
+            
+        // Only load mock history if not already stored
+        const history = (this.state.history && this.state.history.length > 0)
+            ? this.state.history
+            : mockHistory.map(h => ({ ...h, academy_id: academy.id }));
 
         this.setState({
-            user: { id: profile.id, email: 'joao.iniciante@academia.com' },
+            user: this.state.user || { id: profile.id, email: 'joao.iniciante@academia.com' },
             profile,
             academy,
             workouts,

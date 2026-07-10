@@ -7,6 +7,7 @@ import { router } from '../lib/router.js';
 import { VideoPlayer } from '../components/VideoPlayer.js';
 import { Toast } from '../components/Toast.js';
 import { formatTime } from '../lib/utils.js';
+import { mockExercises } from '../lib/mockData.js';
 
 export class WorkoutView {
     /**
@@ -46,7 +47,7 @@ export class WorkoutView {
                 sets: we.sets,
                 reps: we.reps,
                 rest_seconds: we.rest_seconds,
-                notes: we.notes,
+                weight_kg: we.weight_kg || 0,
                 completed: false
             }));
         }
@@ -63,12 +64,19 @@ export class WorkoutView {
 
         // Map list of exercises to template
         const exercisesHtml = this.sessionExercises.map((se, index) => {
-            // If active: show complete checkbox. If preview: show sequence index number.
+            // If active: show complete checkbox. If preview: show edit & delete buttons.
             const rightActionHtml = this.isActive
                 ? `<button class="exercise-card-check ${se.completed ? 'checked' : ''}" data-action="toggle-complete">
                         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="${se.completed ? 'color:white;' : 'color:transparent;'}"><polyline points="20 6 9 17 4 12"></polyline></svg>
                    </button>`
-                : `<div class="flex-center" style="width:32px; height:32px; border-radius:50%; background:var(--color-bg-elevated); border:1px solid var(--color-border); font-size:12px; font-weight:700; color:var(--color-text-secondary);">${index + 1}</div>`;
+                : `<div style="display:flex; gap: 8px; align-items:center;">
+                     <button class="exercise-action-btn edit-btn press-effect" data-action="edit-exercise" style="background:var(--color-bg-elevated); border:1px solid var(--color-border); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--color-primary); cursor:pointer;">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                     </button>
+                     <button class="exercise-action-btn delete-btn press-effect" data-action="delete-exercise" style="background:var(--color-bg-elevated); border:1px solid var(--color-border); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--color-error); cursor:pointer;">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                     </button>
+                   </div>`;
 
             return `
                 <div class="exercise-card stagger-item ${se.completed ? 'completed' : ''}" data-id="${se.id}" style="animation-delay: ${index * 60}ms;">
@@ -83,11 +91,10 @@ export class WorkoutView {
                     <!-- Details -->
                     <div class="exercise-card-info" data-action="open-detail">
                         <div class="exercise-card-name">${se.exercise.name}</div>
-                        <div class="exercise-card-meta">${se.sets}x${se.reps} • Descanso ${se.rest_seconds}s</div>
-                        ${se.notes ? `<div style="font-size:11px; color:var(--color-primary); margin-top:2px;">Nota: ${se.notes}</div>` : ''}
+                        <div class="exercise-card-meta">${se.sets} séries x ${se.reps} reps • ${se.weight_kg || 0} kg • Descanso ${se.rest_seconds}s</div>
                     </div>
 
-                    <!-- Action checkbox or number -->
+                    <!-- Action checkbox or edit/delete buttons -->
                     ${rightActionHtml}
                 </div>
             `;
@@ -101,10 +108,14 @@ export class WorkoutView {
             ? `<button class="btn btn-primary btn-sm press-effect" id="btnFinish">Concluir</button>`
             : '';
 
+        const addExerciseBtnHtml = !this.isActive
+            ? `<button class="btn btn-secondary btn-full press-effect" id="btnAddExercise" style="margin-top: var(--space-4); border: 2px dashed var(--color-border-strong); background: transparent;">+ Adicionar Exercício</button>`
+            : '';
+
         // Add padding at bottom if there is a start button
         const paddingBottom = this.isActive 
             ? 'calc(var(--bottom-nav-height) + 80px)' 
-            : '120px';
+            : '180px';
 
         return `
             <div class="view" style="padding-bottom: ${paddingBottom};">
@@ -137,6 +148,7 @@ export class WorkoutView {
                 <div class="workout-exercises">
                     ${exercisesHtml}
                 </div>
+                ${addExerciseBtnHtml}
 
                 <!-- Rest Timer overlay (Only in active mode) -->
                 ${this.isActive ? `
@@ -230,10 +242,339 @@ export class WorkoutView {
                 if (this.isActive) {
                     this.toggleExerciseComplete(item, card);
                 }
+            } else if (action === 'edit-exercise') {
+                e.stopPropagation();
+                this.openEditModal(item);
+            } else if (action === 'delete-exercise') {
+                e.stopPropagation();
+                this.deleteExercise(item);
             } else {
                 // Navigate to details view
                 router.navigate(`/exercise/${item.exercise.id}`);
             }
+        });
+
+        // Bind add exercise button
+        const addExBtn = document.getElementById('btnAddExercise');
+        if (addExBtn) {
+            addExBtn.addEventListener('click', () => {
+                this.openAddExerciseModal();
+            });
+        }
+    }
+
+    openEditModal(item) {
+        const modal = document.createElement('div');
+        modal.className = 'custom-modal-overlay';
+        modal.innerHTML = `
+            <div class="custom-modal-content anim-scale-in">
+                <h3 class="custom-modal-title">Editar Exercício</h3>
+                <p class="custom-modal-subtitle">${item.exercise.name}</p>
+                
+                <div class="custom-modal-form">
+                    <div class="form-group">
+                        <label>Séries</label>
+                        <input type="number" id="editSets" value="${item.sets}" min="1" max="10" class="input">
+                    </div>
+                    <div class="form-group">
+                        <label>Repetições</label>
+                        <input type="text" id="editReps" value="${item.reps}" class="input">
+                    </div>
+                    <div class="form-group">
+                        <label>Carga (kg)</label>
+                        <input type="number" id="editWeight" value="${item.weight_kg || 0}" min="0" class="input">
+                    </div>
+                    <div class="form-group">
+                        <label>Descanso (segundos)</label>
+                        <input type="number" id="editRest" value="${item.rest_seconds}" min="0" class="input">
+                    </div>
+                </div>
+                
+                <div class="custom-modal-actions">
+                    <button class="btn btn-secondary btn-sm" id="btnCancelEdit">Cancelar</button>
+                    <button class="btn btn-primary btn-sm" id="btnSaveEdit">Salvar</button>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('app').appendChild(modal);
+
+        modal.querySelector('#btnCancelEdit').addEventListener('click', () => {
+            modal.remove();
+        });
+
+        modal.querySelector('#btnSaveEdit').addEventListener('click', () => {
+            const sets = parseInt(modal.querySelector('#editSets').value) || 3;
+            const reps = modal.querySelector('#editReps').value || '12';
+            const weight_kg = parseInt(modal.querySelector('#editWeight').value) || 0;
+            const rest_seconds = parseInt(modal.querySelector('#editRest').value) || 60;
+
+            // Update item details locally
+            item.sets = sets;
+            item.reps = reps;
+            item.weight_kg = weight_kg;
+            item.rest_seconds = rest_seconds;
+
+            // Update workouts in store
+            const currentWorkouts = store.getState().workouts;
+            const updatedWorkouts = currentWorkouts.map(w => {
+                if (w.id === this.workout.id) {
+                    const updatedExercises = w.exercises.map(we => {
+                        if (we.id === item.id) {
+                            return {
+                                ...we,
+                                sets,
+                                reps,
+                                weight_kg,
+                                rest_seconds
+                            };
+                        }
+                        return we;
+                    });
+                    return {
+                        ...w,
+                        exercises: updatedExercises
+                    };
+                }
+                return w;
+            });
+
+            store.setState({ workouts: updatedWorkouts });
+            Toast.show("Exercício atualizado!", "success");
+
+            modal.remove();
+            router.handleRouting(); // Reload screen
+        });
+    }
+
+    deleteExercise(item) {
+        const modal = document.createElement('div');
+        modal.className = 'custom-modal-overlay';
+        modal.innerHTML = `
+            <div class="custom-modal-content anim-scale-in" style="max-width:320px; text-align:center;">
+                <h3 class="custom-modal-title">Remover Exercício</h3>
+                <p style="font-size:14px; color:var(--color-text-secondary); margin-bottom:var(--space-2);">Tem certeza que deseja remover <strong>${item.exercise.name}</strong> da série?</p>
+                <div class="custom-modal-actions" style="justify-content:center; gap:var(--space-3);">
+                    <button class="btn btn-secondary btn-sm" id="btnCancelDelete">Cancelar</button>
+                    <button class="btn btn-primary btn-sm" id="btnConfirmDelete" style="background:var(--color-error); border-color:var(--color-error);">Remover</button>
+                </div>
+            </div>
+        `;
+        document.getElementById('app').appendChild(modal);
+
+        modal.querySelector('#btnCancelDelete').addEventListener('click', () => {
+            modal.remove();
+        });
+
+        modal.querySelector('#btnConfirmDelete').addEventListener('click', () => {
+            this.sessionExercises = this.sessionExercises.filter(se => se.id !== item.id);
+
+            const currentWorkouts = store.getState().workouts;
+            const updatedWorkouts = currentWorkouts.map(w => {
+                if (w.id === this.workout.id) {
+                    return {
+                        ...w,
+                        exercises: w.exercises.filter(we => we.id !== item.id)
+                    };
+                }
+                return w;
+            });
+
+            store.setState({ workouts: updatedWorkouts });
+            Toast.show("Exercício removido!", "warning");
+            
+            modal.remove();
+            router.handleRouting();
+        });
+    }
+
+    openAddExerciseModal() {
+        const modal = document.createElement('div');
+        modal.className = 'custom-modal-overlay';
+        
+        // Define Categories
+        const categories = [
+            'Todos', 'Peito', 'Costas', 'Ombros', 'Bíceps', 'Tríceps', 
+            'Quadríceps', 'Posterior de coxa', 'Glúteos', 'Panturrilhas', 
+            'Abdômen', 'Lombar', 'Trapézio', 'Antebraço'
+        ];
+        
+        let activeCategory = 'Todos';
+        let searchQuery = '';
+
+        const renderSelectorList = () => {
+            const filtered = mockExercises.filter(ex => {
+                const matchesCategory = activeCategory === 'Todos' || ex.muscle_group.toLowerCase() === activeCategory.toLowerCase();
+                const matchesSearch = ex.name.toLowerCase().includes(searchQuery.toLowerCase()) || ex.muscle_group.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchesCategory && matchesSearch;
+            });
+
+            return filtered.map(ex => `
+                <div class="exercise-selector-item" data-ex-id="${ex.id}">
+                    <div>
+                        <div class="exercise-selector-item-name">${ex.name}</div>
+                        <div class="exercise-selector-item-meta">${ex.muscle_group} • ${ex.equipment}</div>
+                    </div>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </div>
+            `).join('') || '<div style="text-align:center; color:var(--color-text-tertiary); padding:var(--space-4);">Nenhum exercício encontrado.</div>';
+        };
+
+        const updateList = () => {
+            const listContainer = modal.querySelector('.exercise-selector-list');
+            if (listContainer) {
+                listContainer.innerHTML = renderSelectorList();
+            }
+        };
+
+        modal.innerHTML = `
+            <div class="custom-modal-content anim-scale-in" style="max-width: 400px; height: 85%; display:flex; flex-direction:column; justify-content:space-between;">
+                <div>
+                    <div class="flex-between" style="margin-bottom:var(--space-3);">
+                        <h3 class="custom-modal-title">Adicionar Exercício</h3>
+                        <button class="press-effect btn-close-modal" style="background:transparent; border:none; color:var(--color-text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Search input -->
+                    <div style="margin-bottom: var(--space-3);">
+                        <input type="text" class="exercise-selector-search" placeholder="Buscar por nome ou músculo..." id="searchExInput">
+                    </div>
+
+                    <!-- Category tabs -->
+                    <div class="exercise-selector-categories" style="margin-bottom: var(--space-4);">
+                        ${categories.map(cat => `
+                            <button class="exercise-category-tab ${cat === activeCategory ? 'active' : ''}" data-cat="${cat}">${cat}</button>
+                        `).join('')}
+                    </div>
+
+                    <!-- Exercises List -->
+                    <div class="exercise-selector-list">
+                        ${renderSelectorList()}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('app').appendChild(modal);
+
+        // Bind events
+        const searchInput = modal.querySelector('#searchExInput');
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            updateList();
+        });
+
+        const categoryTabs = modal.querySelectorAll('.exercise-category-tab');
+        categoryTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                categoryTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                activeCategory = tab.dataset.cat;
+                updateList();
+            });
+        });
+
+        modal.querySelector('.btn-close-modal').addEventListener('click', () => {
+            modal.remove();
+        });
+
+        // Click exercise item -> Open configuration modal
+        const listContainer = modal.querySelector('.exercise-selector-list');
+        listContainer.addEventListener('click', (e) => {
+            const item = e.target.closest('.exercise-selector-item');
+            if (!item) return;
+
+            const exId = item.dataset.exId;
+            const exerciseObj = mockExercises.find(ex => ex.id === exId);
+            if (exerciseObj) {
+                modal.remove(); // Close search modal
+                this.openConfigureAddModal(exerciseObj);
+            }
+        });
+    }
+
+    openConfigureAddModal(exerciseObj) {
+        const modal = document.createElement('div');
+        modal.className = 'custom-modal-overlay';
+        modal.innerHTML = `
+            <div class="custom-modal-content anim-scale-in">
+                <h3 class="custom-modal-title">Configurar Exercício</h3>
+                <p class="custom-modal-subtitle">${exerciseObj.name}</p>
+                
+                <div class="custom-modal-form">
+                    <div class="form-group">
+                        <label>Séries</label>
+                        <input type="number" id="addSets" value="3" min="1" max="10" class="input">
+                    </div>
+                    <div class="form-group">
+                        <label>Repetições</label>
+                        <input type="text" id="addReps" value="12" class="input" placeholder="ex: 12 ou 10-12">
+                    </div>
+                    <div class="form-group">
+                        <label>Carga (kg)</label>
+                        <input type="number" id="addWeight" value="10" min="0" class="input">
+                    </div>
+                    <div class="form-group">
+                        <label>Descanso (segundos)</label>
+                        <input type="number" id="addRest" value="60" min="0" class="input">
+                    </div>
+                </div>
+                
+                <div class="custom-modal-actions">
+                    <button class="btn btn-secondary btn-sm" id="btnCancelAdd">Cancelar</button>
+                    <button class="btn btn-primary btn-sm" id="btnConfirmAdd">Adicionar à Série</button>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('app').appendChild(modal);
+
+        modal.querySelector('#btnCancelAdd').addEventListener('click', () => {
+            modal.remove();
+            this.openAddExerciseModal(); // Go back to search list
+        });
+
+        modal.querySelector('#btnConfirmAdd').addEventListener('click', () => {
+            const sets = parseInt(modal.querySelector('#addSets').value) || 3;
+            const reps = modal.querySelector('#addReps').value || '12';
+            const weight_kg = parseInt(modal.querySelector('#addWeight').value) || 0;
+            const rest_seconds = parseInt(modal.querySelector('#addRest').value) || 60;
+
+            const newWorkoutExercise = {
+                id: `we-gen-${Date.now()}`,
+                exercise: exerciseObj,
+                sets,
+                reps,
+                weight_kg,
+                rest_seconds,
+                order_index: this.sessionExercises.length
+            };
+
+            // Update session exercises and workout definition
+            this.sessionExercises.push({
+                ...newWorkoutExercise,
+                completed: false
+            });
+
+            // Update workouts in store
+            const currentWorkouts = store.getState().workouts;
+            const updatedWorkouts = currentWorkouts.map(w => {
+                if (w.id === this.workout.id) {
+                    return {
+                        ...w,
+                        exercises: [...w.exercises, newWorkoutExercise]
+                    };
+                }
+                return w;
+            });
+
+            store.setState({ workouts: updatedWorkouts });
+            Toast.show(`${exerciseObj.name} adicionado à Série!`, "success");
+
+            modal.remove();
+            router.handleRouting(); // Reload screen
         });
     }
 
