@@ -254,12 +254,13 @@ export class HomeView {
             });
         });
 
-        // Swipe controls for Recommended Workout Card
+        // Swipe and Mouse Drag controls for Recommended Workout Card
         const heroEl = document.querySelector('.home-hero');
         if (heroEl) {
             let startX = 0;
             let startY = 0;
             
+            // Touch handlers
             heroEl.addEventListener('touchstart', (e) => {
                 startX = e.touches[0].clientX;
                 startY = e.touches[0].clientY;
@@ -299,6 +300,63 @@ export class HomeView {
                     }
                 }
             }, { passive: true });
+
+            // Mouse Drag Handlers
+            let isDragging = false;
+            let mouseStartX = 0;
+            let mouseStartY = 0;
+
+            heroEl.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return; // Only track main click
+                isDragging = true;
+                mouseStartX = e.clientX;
+                mouseStartY = e.clientY;
+                heroEl.style.cursor = 'grabbing';
+            });
+
+            // Prevent browser image dragging interference
+            const heroImg = heroEl.querySelector('.home-hero-image');
+            if (heroImg) {
+                heroImg.addEventListener('dragstart', (e) => e.preventDefault());
+            }
+
+            window.addEventListener('mouseup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                heroEl.style.cursor = 'grab';
+
+                const diffX = e.clientX - mouseStartX;
+                const diffY = e.clientY - mouseStartY;
+
+                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                    const baseLetters = ['A', 'B', 'C'];
+                    const workouts = store.getState().workouts;
+                    const extraLetters = workouts.map(w => w.letter).filter(l => !baseLetters.includes(l));
+                    const activeLetters = [...baseLetters, ...extraLetters].sort();
+                    
+                    const currentIndex = activeLetters.indexOf(selectedWorkoutLetter);
+                    
+                    if (diffX < 0) {
+                        // Dragged Left -> Next Series
+                        if (currentIndex < activeLetters.length - 1) {
+                            const nextLetter = activeLetters[currentIndex + 1];
+                            const hasWorkout = workouts.find(w => w.letter === nextLetter);
+                            if (hasWorkout) {
+                                this.transitionWorkout(nextLetter, 'left');
+                            }
+                        }
+                    } else {
+                        // Dragged Right -> Previous Series
+                        if (currentIndex > 0) {
+                            const prevLetter = activeLetters[currentIndex - 1];
+                            const hasWorkout = workouts.find(w => w.letter === prevLetter);
+                            if (hasWorkout) {
+                                this.transitionWorkout(prevLetter, 'right');
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         // Add dynamic series listener

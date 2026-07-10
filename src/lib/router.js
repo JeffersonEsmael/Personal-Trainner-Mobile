@@ -173,7 +173,7 @@ class Router {
         navContainer.className = 'bottom-nav';
 
         const navItems = [
-            { path: '/home', label: 'Treinos', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-item-icon"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v8H2z"></path><path d="M6 8v8"></path><path d="M14 8v8"></path></svg>` },
+            { path: '/home', label: 'Treinos', icon: `<svg viewBox="0 0 24 24" fill="currentColor" class="nav-item-icon"><rect x="6" y="10" width="12" height="4" rx="1"/><rect x="4" y="5" width="2" height="14" rx="1"/><rect x="1" y="8" width="2" height="8" rx="1"/><rect x="18" y="5" width="2" height="14" rx="1"/><rect x="21" y="8" width="2" height="8" rx="1"/></svg>` },
             { path: '/history', label: 'Histórico', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-item-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>` },
             { path: '/profile', label: 'Perfil', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-item-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>` }
         ];
