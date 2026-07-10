@@ -136,24 +136,24 @@ export function getWorkoutImageUrl(workout, gender = 'male') {
     if (isFemale) {
         switch (category) {
             case 'superiores':
-                return '/src/assets/female_upper.png';
+                return '/assets/female_upper.png';
             case 'costas':
-                return '/src/assets/female_back.png';
+                return '/assets/female_back.png';
             case 'pernas':
-                return '/src/assets/female_legs.png';
+                return '/assets/female_legs.png';
             default:
-                return '/src/assets/female_default.png';
+                return '/assets/female_default.png';
         }
     } else {
         switch (category) {
             case 'superiores':
-                return '/src/assets/male_upper.png';
+                return '/assets/male_upper.png';
             case 'costas':
-                return '/src/assets/male_back.png';
+                return '/assets/male_back.png';
             case 'pernas':
-                return '/src/assets/male_legs.png';
+                return '/assets/male_legs.png';
             default:
-                return '/src/assets/male_default.png';
+                return '/assets/male_default.png';
         }
     }
 }
