@@ -1,0 +1,55 @@
+/* ============================================
+   THEME ENGINE — White Label Theming
+   CSS Custom Properties for dynamic academy branding
+   ============================================ */
+
+:root {
+    /* ---- Default Theme (Dark Premium) ---- */
+    --color-primary: #FF6B2C;
+    --color-primary-light: #FF8F5E;
+    --color-primary-dark: #E55A1B;
+    --color-primary-alpha: rgba(255, 107, 44, 0.2);
+    --color-primary-alpha-strong: rgba(255, 107, 44, 0.35);
+
+    --color-secondary: #FF8F5E;
+
+    /* ---- Backgrounds ---- */
+    --color-bg: #0A0A0F;
+    --color-bg-elevated: #141419;
+    --color-bg-card: #1A1A22;
+    --color-bg-input: #1E1E28;
+    --color-bg-hover: #22222E;
+
+    /* ---- Text ---- */
+    --color-text: #F5F5F7;
+    --color-text-secondary: #8E8E93;
+    --color-text-tertiary: #5A5A65;
+    --color-text-inverse: #0A0A0F;
+
+    /* ---- Borders ---- */
+    --color-border: rgba(255, 255, 255, 0.06);
+    --color-border-strong: rgba(255, 255, 255, 0.12);
+
+    /* ---- Semantic Colors ---- */
+    --color-success: #34C759;
+    --color-success-alpha: rgba(52, 199, 89, 0.15);
+    --color-warning: #FF9F0A;
+    --color-warning-alpha: rgba(255, 159, 10, 0.15);
+    --color-error: #FF453A;
+    --color-error-alpha: rgba(255, 69, 58, 0.15);
+    --color-info: #5AC8FA;
+
+    /* ---- Glassmorphism ---- */
+    --glass-bg: rgba(20, 20, 25, 0.85);
+    --glass-blur: 20px;
+    --glass-border: rgba(255, 255, 255, 0.08);
+
+    /* ---- Gradients ---- */
+    --gradient-primary: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+    --gradient-dark: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-elevated) 100%);
+    --gradient-card: linear-gradient(145deg, var(--color-bg-card), var(--color-bg-elevated));
+    --gradient-hero: linear-gradient(180deg, transparent 0%, var(--color-bg) 100%);
+}
+
+/* ---- Academy theme overrides are applied via JS ---- */
+/* theme.js sets --color-primary and --color-secondary on :root */
