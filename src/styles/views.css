@@ -152,6 +152,55 @@
     border-radius: var(--radius-xl);
     position: relative;
     overflow: visible;
+    clip-path: inset(-120px 0px -50px 0px); /* Clips horizontally but allows vertical overflow (head/shoulders) */
+}
+
+.home-hero-slide-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 140px;
+}
+
+.home-hero-slide {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+}
+
+.slide-out-left {
+    transform: translateX(-120%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.slide-out-right {
+    transform: translateX(120%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.slide-in-right-init {
+    transform: translateX(120%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.slide-in-left-init {
+    transform: translateX(-120%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
 }
 
 .home-hero::before {

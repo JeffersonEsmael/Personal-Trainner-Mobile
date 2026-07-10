@@ -86,19 +86,23 @@ export class HomeView {
 
                 <!-- Active / Recommended Workout Hero Card -->
                 <div class="home-hero anim-scale-in">
-                    <div class="home-hero-content">
-                        <div class="home-hero-label">Treino Recomendado</div>
-                        <h2 class="home-hero-title">${todayWorkout?.name || 'Treino Geral'}</h2>
-                        <p class="home-hero-meta">Série ${todayWorkout?.letter || 'A'} • ${workoutMeta}</p>
-                        
-                        <button class="btn btn-primary btn-full press-effect btn-start-today" data-workout-id="${todayWorkout?.id || ''}" style="margin-top: var(--space-2);">
-                            ${activeText}
-                        </button>
+                    <div class="home-hero-slide-wrapper">
+                        <div class="home-hero-slide">
+                            <div class="home-hero-content">
+                                <div class="home-hero-label">Treino Recomendado</div>
+                                <h2 class="home-hero-title">${todayWorkout?.name || 'Treino Geral'}</h2>
+                                <p class="home-hero-meta">Série ${todayWorkout?.letter || 'A'} • ${workoutMeta}</p>
+                                
+                                <button class="btn btn-primary btn-full press-effect btn-start-today" data-workout-id="${todayWorkout?.id || ''}" style="margin-top: var(--space-2);">
+                                    ${activeText}
+                                </button>
+                            </div>
+                            ${workoutImageUrl 
+                                ? `<img class="home-hero-image" src="${workoutImageUrl}" alt="Ilustração do treino" />` 
+                                : ''
+                            }
+                        </div>
                     </div>
-                    ${workoutImageUrl 
-                        ? `<img class="home-hero-image" src="${workoutImageUrl}" alt="Ilustração do treino" />` 
-                        : ''
-                    }
                 </div>
 
                 <!-- Workout Series Letters Scroll -->
@@ -139,6 +143,85 @@ export class HomeView {
         `;
     }
 
+    transitionWorkout(newLetter, direction) {
+        if (selectedWorkoutLetter === newLetter) return;
+        
+        const oldLetter = selectedWorkoutLetter;
+        selectedWorkoutLetter = newLetter;
+
+        const workouts = this.state.workouts;
+        const student = this.state.profile?.student_details || {};
+        const gender = student.gender || 'male';
+        
+        const todayWorkout = workouts.find(w => w.letter === selectedWorkoutLetter) || workouts[0];
+        const workoutImageUrl = getWorkoutImageUrl(todayWorkout, gender);
+        const workoutMeta = todayWorkout?.exercises?.length 
+            ? `${todayWorkout.exercises.length} exercícios` 
+            : 'Nenhum exercício cadastrado';
+
+        const isFeaturedActive = this.state.activeWorkout && this.state.activeWorkout.workoutId === todayWorkout.id;
+        const activeText = isFeaturedActive ? 'Retomar Treino' : 'Abrir Série';
+
+        // 1. Update letter card visual state in the DOM
+        const seriesCards = document.querySelectorAll('.workout-letter-card:not(.btn-add-series)');
+        seriesCards.forEach(card => {
+            if (card.dataset.letter === newLetter) {
+                card.classList.add('active');
+            } else {
+                card.classList.remove('active');
+            }
+        });
+
+        // 2. Animate recommended workout card slider
+        const wrapper = document.querySelector('.home-hero-slide-wrapper');
+        const oldSlide = wrapper.querySelector('.home-hero-slide');
+        
+        if (wrapper && oldSlide) {
+            const newSlide = document.createElement('div');
+            newSlide.className = `home-hero-slide ${direction === 'left' ? 'slide-in-right-init' : 'slide-in-left-init'}`;
+            newSlide.innerHTML = `
+                <div class="home-hero-content">
+                    <div class="home-hero-label">Treino Recomendado</div>
+                    <h2 class="home-hero-title">${todayWorkout?.name || 'Treino Geral'}</h2>
+                    <p class="home-hero-meta">Série ${todayWorkout?.letter || 'A'} • ${workoutMeta}</p>
+                    
+                    <button class="btn btn-primary btn-full press-effect btn-start-today" data-workout-id="${todayWorkout?.id || ''}" style="margin-top: var(--space-2);">
+                        ${activeText}
+                    </button>
+                </div>
+                ${workoutImageUrl 
+                    ? `<img class="home-hero-image" src="${workoutImageUrl}" alt="Ilustração do treino" />` 
+                    : ''
+                }
+            `;
+
+            wrapper.appendChild(newSlide);
+
+            // Force reflow
+            newSlide.offsetHeight;
+
+            // Trigger animations
+            oldSlide.className = `home-hero-slide ${direction === 'left' ? 'slide-out-left' : 'slide-out-right'}`;
+            newSlide.className = 'home-hero-slide';
+
+            // Clean up after transition
+            setTimeout(() => {
+                oldSlide.remove();
+                
+                // Re-bind the click listener on the new button in the new slide
+                const startBtn = newSlide.querySelector('.btn-start-today');
+                if (startBtn) {
+                    startBtn.addEventListener('click', () => {
+                        const workoutId = startBtn.dataset.workoutId;
+                        if (workoutId) {
+                            router.navigate(`/workout/${workoutId}`);
+                        }
+                    });
+                }
+            }, 350);
+        }
+    }
+
     afterRender() {
         const startBtn = document.querySelector('.btn-start-today');
         if (startBtn) {
@@ -156,12 +239,67 @@ export class HomeView {
             card.addEventListener('click', (e) => {
                 e.preventDefault();
                 const letter = card.dataset.letter;
-                if (letter) {
-                    selectedWorkoutLetter = letter;
-                    router.handleRouting();
+                if (letter && letter !== selectedWorkoutLetter) {
+                    const baseLetters = ['A', 'B', 'C'];
+                    const workouts = this.state.workouts;
+                    const extraLetters = workouts.map(w => w.letter).filter(l => !baseLetters.includes(l));
+                    const activeLetters = [...baseLetters, ...extraLetters].sort();
+                    
+                    const fromIndex = activeLetters.indexOf(selectedWorkoutLetter);
+                    const toIndex = activeLetters.indexOf(letter);
+                    const direction = toIndex > fromIndex ? 'left' : 'right';
+                    
+                    this.transitionWorkout(letter, direction);
                 }
             });
         });
+
+        // Swipe controls for Recommended Workout Card
+        const heroEl = document.querySelector('.home-hero');
+        if (heroEl) {
+            let startX = 0;
+            let startY = 0;
+            
+            heroEl.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            heroEl.addEventListener('touchend', (e) => {
+                const diffX = e.changedTouches[0].clientX - startX;
+                const diffY = e.changedTouches[0].clientY - startY;
+                
+                // Only trigger if horizontal drag is dominant and exceeds threshold
+                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                    const baseLetters = ['A', 'B', 'C'];
+                    const workouts = store.getState().workouts;
+                    const extraLetters = workouts.map(w => w.letter).filter(l => !baseLetters.includes(l));
+                    const activeLetters = [...baseLetters, ...extraLetters].sort();
+                    
+                    const currentIndex = activeLetters.indexOf(selectedWorkoutLetter);
+                    
+                    if (diffX < 0) {
+                        // Swiped Left -> Next Series
+                        if (currentIndex < activeLetters.length - 1) {
+                            const nextLetter = activeLetters[currentIndex + 1];
+                            const hasWorkout = workouts.find(w => w.letter === nextLetter);
+                            if (hasWorkout) {
+                                this.transitionWorkout(nextLetter, 'left');
+                            }
+                        }
+                    } else {
+                        // Swiped Right -> Previous Series
+                        if (currentIndex > 0) {
+                            const prevLetter = activeLetters[currentIndex - 1];
+                            const hasWorkout = workouts.find(w => w.letter === prevLetter);
+                            if (hasWorkout) {
+                                this.transitionWorkout(prevLetter, 'right');
+                            }
+                        }
+                    }
+                }
+            }, { passive: true });
+        }
 
         // Add dynamic series listener
         const addSeriesBtn = document.querySelector('.btn-add-series');
