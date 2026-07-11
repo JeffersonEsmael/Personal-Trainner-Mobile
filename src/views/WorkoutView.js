@@ -149,26 +149,26 @@ export class WorkoutView {
                     ${exercisesHtml}
                 </div>
                 ${addExerciseBtnHtml}
-
-                <!-- Rest Timer overlay (Only in active mode) -->
-                ${this.isActive ? `
-                <div class="workout-timer-bar" id="restTimerBar" style="display: none;">
-                    <div class="workout-timer-value" id="restTimerVal">30s</div>
-                    <div style="flex:1;">
-                        <div class="workout-timer-label">Intervalo de Descanso</div>
-                        <div style="font-size:11px; color:var(--color-text-secondary);">Recupere o fôlego para a próxima série!</div>
-                    </div>
-                    <button class="btn btn-ghost btn-sm" id="btnSkipRest">Pular</button>
-                </div>
-                ` : ''}
-
-                <!-- Bottom Footer Start Button (Only in preview mode) -->
-                ${!this.isActive ? `
-                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: var(--space-4); background: var(--color-bg); border-top: 1px solid var(--color-border); z-index: var(--z-sticky);">
-                    <button class="btn btn-primary btn-lg btn-full press-effect" id="btnStartWorkout">Iniciar Treino</button>
-                </div>
-                ` : ''}
             </div>
+
+            <!-- Rest Timer overlay (Only in active mode) -->
+            ${this.isActive ? `
+            <div class="workout-timer-bar" id="restTimerBar" style="display: none;">
+                <div class="workout-timer-value" id="restTimerVal">30s</div>
+                <div style="flex:1;">
+                    <div class="workout-timer-label">Intervalo de Descanso</div>
+                    <div style="font-size:11px; color:var(--color-text-secondary);">Recupere o fôlego para a próxima série!</div>
+                </div>
+                <button class="btn btn-ghost btn-sm" id="btnSkipRest">Pular</button>
+            </div>
+            ` : ''}
+
+            <!-- Bottom Footer Start Button (Only in preview mode) -->
+            ${!this.isActive ? `
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: var(--space-4); background: var(--color-bg); border-top: 1px solid var(--color-border); z-index: var(--z-sticky);">
+                <button class="btn btn-primary btn-lg btn-full press-effect" id="btnStartWorkout">Iniciar Treino</button>
+            </div>
+            ` : ''}
         `;
     }
 
