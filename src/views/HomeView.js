@@ -34,16 +34,13 @@ export class HomeView {
             : 'Nenhum exercício cadastrado';
 
         const workoutName = todayWorkout?.name || 'Treino Geral';
-        const maxChars = 24;
-        const displayWorkoutName = workoutName.length > maxChars 
-            ? workoutName.substring(0, maxChars) + '...' 
-            : workoutName;
+        const displayWorkoutName = workoutName;
 
         // Find if there is an active session in progress for this specific featured workout
         const isFeaturedActive = activeWorkout && activeWorkout.workoutId === todayWorkout.id;
         const activeText = isFeaturedActive 
-            ? 'Retomar Treino' 
-            : 'Abrir Série';
+            ? 'RETOMAR TREINO' 
+            : 'ABRIR SÉRIE';
 
         // Construct list of series letters (A, B, C by default, D and E added dynamically)
         const baseLetters = ['A', 'B', 'C'];
@@ -59,7 +56,7 @@ export class HomeView {
                         data-letter="${letter}"
                         ${!hasWorkout ? 'disabled style="opacity: 0.25;"' : ''}>
                     <span class="workout-letter">${letter}</span>
-                    <span class="workout-letter-label">${hasWorkout ? 'Ativo' : 'Vazio'}</span>
+                    <span class="workout-letter-label">SÉRIE</span>
                 </button>
             `;
         }).join('');
@@ -70,7 +67,7 @@ export class HomeView {
             seriesHtml += `
                 <button class="workout-letter-card press-effect btn-add-series" style="border: 2px dashed var(--color-border-strong); background: transparent;">
                     <span class="workout-letter" style="color: var(--color-text-secondary); line-height: 0.9;">+</span>
-                    <span class="workout-letter-label" style="color: var(--color-text-tertiary);">Nova</span>
+                    <span class="workout-letter-label" style="color: var(--color-text-tertiary);">NOVA</span>
                 </button>
             `;
         }
@@ -97,7 +94,7 @@ export class HomeView {
                         <div class="home-hero-slide">
                             <div class="home-hero-content">
                                 <div class="home-hero-label">Treino Recomendado</div>
-                                <h2 class="home-hero-title">${displayWorkoutName}</h2>
+                                <h2 class="home-hero-title">${displayWorkoutName}<br>Série ${todayWorkout?.letter || 'A'}</h2>
                                 <p class="home-hero-meta">Série ${todayWorkout?.letter || 'A'} • ${workoutMeta}</p>
                                 
                                 <button class="btn btn-primary btn-full press-effect btn-start-today" data-workout-id="${todayWorkout?.id || ''}" style="margin-top: var(--space-2);">
@@ -168,13 +165,10 @@ export class HomeView {
             : 'Nenhum exercício cadastrado';
 
         const workoutName = todayWorkout?.name || 'Treino Geral';
-        const maxChars = 24;
-        const displayWorkoutName = workoutName.length > maxChars 
-            ? workoutName.substring(0, maxChars) + '...' 
-            : workoutName;
+        const displayWorkoutName = workoutName;
 
         const isFeaturedActive = this.state.activeWorkout && this.state.activeWorkout.workoutId === todayWorkout.id;
-        const activeText = isFeaturedActive ? 'Retomar Treino' : 'Abrir Série';
+        const activeText = isFeaturedActive ? 'RETOMAR TREINO' : 'ABRIR SÉRIE';
 
         // 1. Update letter card visual state in the DOM
         const seriesCards = document.querySelectorAll('.workout-letter-card:not(.btn-add-series)');
@@ -196,7 +190,7 @@ export class HomeView {
             newSlide.innerHTML = `
                 <div class="home-hero-content">
                     <div class="home-hero-label">Treino Recomendado</div>
-                    <h2 class="home-hero-title">${displayWorkoutName}</h2>
+                    <h2 class="home-hero-title">${displayWorkoutName}<br>Série ${todayWorkout?.letter || 'A'}</h2>
                     <p class="home-hero-meta">Série ${todayWorkout?.letter || 'A'} • ${workoutMeta}</p>
                     
                     <button class="btn btn-primary btn-full press-effect btn-start-today" data-workout-id="${todayWorkout?.id || ''}" style="margin-top: var(--space-2);">

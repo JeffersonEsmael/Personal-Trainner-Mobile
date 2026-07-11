@@ -405,7 +405,7 @@ export const mockWorkouts = [
     },
     {
         id: 'w-2',
-        name: 'Costas — Série B',
+        name: 'Costas',
         letter: 'B',
         exercises: [
             { id: 'we-7', exercise: mockExercises[5], sets: 3, reps: '12', rest_seconds: 60, weight_kg: 40, order_index: 0, notes: 'Cotovelos para baixo' }
@@ -464,7 +464,7 @@ export const mockHistory = [
     {
         id: 'h-2',
         workout_id: 'w-2',
-        name: 'Costas — Série B',
+        name: 'Costas',
         letter: 'B',
         started_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 - 3600 * 1000 * 3).toISOString(),
         completed_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 - 3600 * 1000 * 2.2).toISOString(),
