@@ -4,7 +4,7 @@
 
 import { store } from '../lib/store.js';
 import { router } from '../lib/router.js';
-import { getWorkoutImageUrl } from '../lib/utils.js';
+import { getWorkoutImageUrl, getDominantMuscleCategory } from '../lib/utils.js';
 
 // Module-level state for currently selected series card on the dashboard
 let selectedWorkoutLetter = null;
@@ -28,9 +28,16 @@ export class HomeView {
         const todayWorkout = workouts.find(w => w.letter === selectedWorkoutLetter) || workouts[0];
 
         const workoutImageUrl = getWorkoutImageUrl(todayWorkout, gender);
+        const category = getDominantMuscleCategory(todayWorkout);
         const workoutMeta = todayWorkout?.exercises?.length 
             ? `${todayWorkout.exercises.length} exercícios` 
             : 'Nenhum exercício cadastrado';
+
+        const workoutName = todayWorkout?.name || 'Treino Geral';
+        const maxChars = 24;
+        const displayWorkoutName = workoutName.length > maxChars 
+            ? workoutName.substring(0, maxChars) + '...' 
+            : workoutName;
 
         // Find if there is an active session in progress for this specific featured workout
         const isFeaturedActive = activeWorkout && activeWorkout.workoutId === todayWorkout.id;
@@ -90,7 +97,7 @@ export class HomeView {
                         <div class="home-hero-slide">
                             <div class="home-hero-content">
                                 <div class="home-hero-label">Treino Recomendado</div>
-                                <h2 class="home-hero-title">${todayWorkout?.name || 'Treino Geral'}</h2>
+                                <h2 class="home-hero-title">${displayWorkoutName}</h2>
                                 <p class="home-hero-meta">Série ${todayWorkout?.letter || 'A'} • ${workoutMeta}</p>
                                 
                                 <button class="btn btn-primary btn-full press-effect btn-start-today" data-workout-id="${todayWorkout?.id || ''}" style="margin-top: var(--space-2);">
@@ -98,7 +105,7 @@ export class HomeView {
                                 </button>
                             </div>
                             ${workoutImageUrl 
-                                ? `<img class="home-hero-image" src="${workoutImageUrl}" alt="Ilustração do treino" />` 
+                                ? `<img class="home-hero-image image-${category}" src="${workoutImageUrl}" alt="Ilustração do treino" />` 
                                 : ''
                             }
                         </div>
@@ -155,9 +162,16 @@ export class HomeView {
         
         const todayWorkout = workouts.find(w => w.letter === selectedWorkoutLetter) || workouts[0];
         const workoutImageUrl = getWorkoutImageUrl(todayWorkout, gender);
+        const category = getDominantMuscleCategory(todayWorkout);
         const workoutMeta = todayWorkout?.exercises?.length 
             ? `${todayWorkout.exercises.length} exercícios` 
             : 'Nenhum exercício cadastrado';
+
+        const workoutName = todayWorkout?.name || 'Treino Geral';
+        const maxChars = 24;
+        const displayWorkoutName = workoutName.length > maxChars 
+            ? workoutName.substring(0, maxChars) + '...' 
+            : workoutName;
 
         const isFeaturedActive = this.state.activeWorkout && this.state.activeWorkout.workoutId === todayWorkout.id;
         const activeText = isFeaturedActive ? 'Retomar Treino' : 'Abrir Série';
@@ -182,7 +196,7 @@ export class HomeView {
             newSlide.innerHTML = `
                 <div class="home-hero-content">
                     <div class="home-hero-label">Treino Recomendado</div>
-                    <h2 class="home-hero-title">${todayWorkout?.name || 'Treino Geral'}</h2>
+                    <h2 class="home-hero-title">${displayWorkoutName}</h2>
                     <p class="home-hero-meta">Série ${todayWorkout?.letter || 'A'} • ${workoutMeta}</p>
                     
                     <button class="btn btn-primary btn-full press-effect btn-start-today" data-workout-id="${todayWorkout?.id || ''}" style="margin-top: var(--space-2);">
@@ -190,7 +204,7 @@ export class HomeView {
                     </button>
                 </div>
                 ${workoutImageUrl 
-                    ? `<img class="home-hero-image" src="${workoutImageUrl}" alt="Ilustração do treino" />` 
+                    ? `<img class="home-hero-image image-${category}" src="${workoutImageUrl}" alt="Ilustração do treino" />` 
                     : ''
                 }
             `;

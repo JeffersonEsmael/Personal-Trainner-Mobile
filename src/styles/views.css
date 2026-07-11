@@ -227,11 +227,23 @@
     position: absolute;
     right: -5px;
     bottom: 0;
-    height: 120%;
     z-index: 1;
     pointer-events: none;
     filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.45));
     object-fit: contain;
+}
+
+.home-hero-image.image-superiores,
+.home-hero-image.image-costas,
+.home-hero-image.image-pernas {
+    height: 120%;
+    bottom: 0;
+}
+
+.home-hero-image.image-bracos {
+    height: 100%;
+    bottom: 0;
+    right: -5px;
 }
 
 .home-hero-label {
@@ -248,6 +260,9 @@
     font-weight: var(--weight-bold);
     color: var(--color-text);
     margin-bottom: var(--space-1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .home-hero-meta {

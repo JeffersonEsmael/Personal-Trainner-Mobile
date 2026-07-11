@@ -70,16 +70,17 @@ export function debounce(func, wait) {
 /**
  * Analyze a workout to find the dominant muscle group category
  * @param {object} workout 
- * @returns {'superiores' | 'costas' | 'pernas'}
+ * @returns {'superiores' | 'bracos' | 'costas' | 'pernas'}
  */
 export function getDominantMuscleCategory(workout) {
     if (!workout || !workout.exercises || workout.exercises.length === 0) {
         return 'superiores';
     }
 
-    let upperCount = 0;
-    let backCount = 0;
-    let legsCount = 0;
+    let upperCount = 0; // Peito, Ombros, etc.
+    let armsCount = 0;  // Bíceps, Tríceps, Antebraço, Braço
+    let backCount = 0;  // Costas, Dorsal
+    let legsCount = 0;  // Perna, Quadríceps, Posterior, Glúteos, Panturrilhas, etc.
 
     workout.exercises.forEach(we => {
         const exercise = we.exercise;
@@ -91,14 +92,25 @@ export function getDominantMuscleCategory(workout) {
         if (
             muscleGroup.includes('peito') ||
             muscleGroup.includes('ombro') ||
+            muscleGroup.includes('deltoide')
+        ) {
+            upperCount++;
+        } else if (
             muscleGroup.includes('tríceps') ||
             muscleGroup.includes('triceps') ||
             muscleGroup.includes('bíceps') ||
             muscleGroup.includes('biceps') ||
-            muscleGroup.includes('braço')
+            muscleGroup.includes('braço') ||
+            muscleGroup.includes('braco') ||
+            muscleGroup.includes('antebraço') ||
+            muscleGroup.includes('antembraco')
         ) {
-            upperCount++;
-        } else if (muscleGroup.includes('costas')) {
+            armsCount++;
+        } else if (
+            muscleGroup.includes('costas') || 
+            muscleGroup.includes('dorsal') ||
+            muscleGroup.includes('lombar')
+        ) {
             backCount++;
         } else if (
             muscleGroup.includes('perna') ||
@@ -107,20 +119,29 @@ export function getDominantMuscleCategory(workout) {
             muscleGroup.includes('posterior') ||
             muscleGroup.includes('isquiotibiais') ||
             muscleGroup.includes('glúteo') ||
-            muscleGroup.includes('panturrilha')
+            muscleGroup.includes('gluteo') ||
+            muscleGroup.includes('panturrilha') ||
+            muscleGroup.includes('coxa')
         ) {
             legsCount++;
         }
     });
 
-    // Determine the maximum
-    if (upperCount >= backCount && upperCount >= legsCount) {
+    const counts = [
+        { category: 'superiores', count: upperCount },
+        { category: 'bracos', count: armsCount },
+        { category: 'costas', count: backCount },
+        { category: 'pernas', count: legsCount }
+    ];
+
+    // Sort by count descending
+    counts.sort((a, b) => b.count - a.count);
+
+    if (counts[0].count === 0) {
         return 'superiores';
-    } else if (backCount >= upperCount && backCount >= legsCount) {
-        return 'costas';
-    } else {
-        return 'pernas';
     }
+
+    return counts[0].category;
 }
 
 /**
@@ -141,6 +162,8 @@ export function getWorkoutImageUrl(workout, gender = 'male') {
                 return '/assets/female_back.png';
             case 'pernas':
                 return '/assets/female_legs.png';
+            case 'bracos':
+                return '/assets/reference_arms.png'; // Sem versão feminina específica para braços, usamos a de referência
             default:
                 return '/assets/female_default.png';
         }
@@ -149,9 +172,11 @@ export function getWorkoutImageUrl(workout, gender = 'male') {
             case 'superiores':
                 return '/assets/male_upper.png';
             case 'costas':
-                return '/assets/male_back.png';
+                return '/assets/reference_back.png';
             case 'pernas':
-                return '/assets/male_legs.png';
+                return '/assets/reference_legs.png';
+            case 'bracos':
+                return '/assets/reference_arms.png';
             default:
                 return '/assets/male_default.png';
         }

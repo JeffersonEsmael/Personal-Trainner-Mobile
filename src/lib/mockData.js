@@ -396,18 +396,25 @@ export const mockExercises = [...detailedExercises, ...generatedExercises];
 export const mockWorkouts = [
     {
         id: 'w-1',
-        name: 'Superiores — Peito, Tríceps e Ombro',
+        name: 'Superiores — Peito',
         letter: 'A',
         exercises: [
             { id: 'we-1', exercise: mockExercises[0], sets: 3, reps: '12', rest_seconds: 60, weight_kg: 30, order_index: 0, notes: 'Foco na cadência de descida' },
-            { id: 'we-2', exercise: mockExercises[4], sets: 3, reps: '12', rest_seconds: 45, weight_kg: 10, order_index: 1, notes: 'Cotovelos levemente flexionados' },
-            { id: 'we-3', exercise: mockExercises[6], sets: 4, reps: '10', rest_seconds: 60, weight_kg: 25, order_index: 2, notes: 'Abrir a corda no final' }
+            { id: 'we-2', exercise: mockExercises[4], sets: 3, reps: '12', rest_seconds: 45, weight_kg: 10, order_index: 1, notes: 'Cotovelos levemente flexionados' }
         ]
     },
     {
         id: 'w-2',
-        name: 'Inferiores — Quadríceps e Posterior',
+        name: 'Costas — Série B',
         letter: 'B',
+        exercises: [
+            { id: 'we-7', exercise: mockExercises[5], sets: 3, reps: '12', rest_seconds: 60, weight_kg: 40, order_index: 0, notes: 'Cotovelos para baixo' }
+        ]
+    },
+    {
+        id: 'w-3',
+        name: 'Inferiores — Perna',
+        letter: 'C',
         exercises: [
             { id: 'we-4', exercise: mockExercises[2], sets: 4, reps: '10', rest_seconds: 90, weight_kg: 50, order_index: 0, notes: 'Descer até 90 graus' },
             { id: 'we-5', exercise: mockExercises[3], sets: 3, reps: '12', rest_seconds: 60, weight_kg: 120, order_index: 1, notes: 'Empurrar com o calcanhar' },
@@ -415,12 +422,12 @@ export const mockWorkouts = [
         ]
     },
     {
-        id: 'w-3',
-        name: 'Costas e Bíceps',
-        letter: 'C',
+        id: 'w-4',
+        name: 'Braço — Bíceps',
+        letter: 'D',
         exercises: [
-            { id: 'we-7', exercise: mockExercises[5], sets: 3, reps: '12', rest_seconds: 60, weight_kg: 40, order_index: 0, notes: 'Cotovelos para baixo' },
-            { id: 'we-8', exercise: mockExercises[1], sets: 3, reps: '10', rest_seconds: 60, weight_kg: 15, order_index: 1, notes: 'Manter a postura ereta' }
+            { id: 'we-8', exercise: mockExercises[1], sets: 3, reps: '10', rest_seconds: 60, weight_kg: 15, order_index: 0, notes: 'Manter a postura ereta' },
+            { id: 'we-3', exercise: mockExercises[6], sets: 4, reps: '10', rest_seconds: 60, weight_kg: 25, order_index: 1, notes: 'Abrir a corda no final' }
         ]
     }
 ];
@@ -446,23 +453,23 @@ export const mockHistory = [
     {
         id: 'h-1',
         workout_id: 'w-1',
-        name: 'Superiores — Peito, Tríceps e Ombro',
+        name: 'Superiores — Peito',
         letter: 'A',
         started_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000 - 3600 * 1000 * 2).toISOString(),
         completed_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000 - 3600 * 1000 * 1.5).toISOString(),
         duration_seconds: 1800,
-        exercises_completed: 3,
-        exercises_total: 3
+        exercises_completed: 2,
+        exercises_total: 2
     },
     {
         id: 'h-2',
         workout_id: 'w-2',
-        name: 'Inferiores — Quadríceps e Posterior',
+        name: 'Costas — Série B',
         letter: 'B',
         started_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 - 3600 * 1000 * 3).toISOString(),
         completed_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 - 3600 * 1000 * 2.2).toISOString(),
         duration_seconds: 2400,
-        exercises_completed: 3,
-        exercises_total: 3
+        exercises_completed: 1,
+        exercises_total: 1
     }
 ];
