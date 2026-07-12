@@ -1,13 +1,12 @@
 // ============================================
-// HOME VIEW — Aluno Dashboard
+// HOME VIEW — Dashboard Router View
 // ============================================
 
 import { store } from '../lib/store.js';
 import { router } from '../lib/router.js';
 import { getWorkoutImageUrl, getDominantMuscleCategory } from '../lib/utils.js';
 
-// Module-level state for currently selected series card on the dashboard
-let selectedWorkoutLetter = null;
+let selectedWorkoutLetter = '';
 
 export class HomeView {
     constructor() {
@@ -15,7 +14,14 @@ export class HomeView {
     }
 
     async render() {
-        const { profile, academy, workouts, activeWorkout } = this.state;
+        const { profile, academy, workouts, activeWorkout, isImpersonating } = this.state;
+
+        // 1. If logged in user is a Personal Trainer and NOT in student edit mode, show the Trainer Dashboard
+        if (profile?.role === 'trainer' && !isImpersonating) {
+            return this.renderTrainerDashboard();
+        }
+
+        // 2. Render Aluno (Student) Dashboard (or Impersonated mode for Trainer)
         const student = profile?.student_details || {};
         const gender = student.gender || 'male';
         
@@ -26,23 +32,23 @@ export class HomeView {
 
         // Choose workout of the day based on user selection
         const todayWorkout = workouts.find(w => w.letter === selectedWorkoutLetter) || workouts[0];
+        const hasExercises = todayWorkout?.exercises && todayWorkout.exercises.length > 0;
 
-        const workoutImageUrl = getWorkoutImageUrl(todayWorkout, gender);
-        const category = getDominantMuscleCategory(todayWorkout);
-        const workoutMeta = todayWorkout?.exercises?.length 
+        const workoutImageUrl = hasExercises ? getWorkoutImageUrl(todayWorkout, gender) : null;
+        const category = hasExercises ? getDominantMuscleCategory(todayWorkout) : null;
+        const workoutMeta = hasExercises 
             ? `${todayWorkout.exercises.length} exercícios` 
             : 'Nenhum exercício cadastrado';
 
         const workoutName = todayWorkout?.name || 'Treino Geral';
-        const displayWorkoutName = workoutName;
 
         // Find if there is an active session in progress for this specific featured workout
         const isFeaturedActive = activeWorkout && activeWorkout.workoutId === todayWorkout.id;
         const activeText = isFeaturedActive 
             ? 'RETOMAR TREINO' 
-            : 'ABRIR SÉRIE';
+            : hasExercises ? 'ABRIR SÉRIE' : 'MONTAR SÉRIE';
 
-        // Construct list of series letters (A, B, C by default, D and E added dynamically)
+        // Construct list of series letters (A, B, C by default)
         const baseLetters = ['A', 'B', 'C'];
         const extraLetters = workouts.map(w => w.letter).filter(l => !baseLetters.includes(l));
         const activeLetters = [...baseLetters, ...extraLetters].sort();
@@ -73,11 +79,57 @@ export class HomeView {
         }
 
         // Progress bar percentage calculation
-        const historyThisWeek = this.state.history.length;
+        const historyThisWeek = this.state.history ? this.state.history.length : 0;
         const totalTarget = 5;
         const pct = Math.min((historyThisWeek / totalTarget) * 100, 100);
 
+        // Impersonation banner warning for Personal Trainer
+        const impersonationBannerHtml = isImpersonating
+            ? `
+                <div class="trainer-edit-banner" style="background: var(--color-primary); padding: var(--space-2) var(--space-4); display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); z-index: var(--z-sticky); position: sticky; top: 0; box-shadow: var(--shadow-md);">
+                    <span style="font-size: 13px; font-weight: 700; color: white;">✏️ Modo Personal: Editando ${profile.full_name}</span>
+                    <button class="btn btn-ghost press-effect" id="btnExitImpersonation" style="color: white; padding: 2px 8px; min-height: 28px; font-size: 11px; background: rgba(0,0,0,0.25); border-radius: 4px; font-weight: 700; border: none; cursor: pointer;">
+                        Salvar e Voltar
+                    </button>
+                </div>
+              `
+            : '';
+
+        // Hero Card content based on whether it has exercises
+        const heroContentHtml = hasExercises
+            ? `
+                <div class="home-hero-slide">
+                    <div class="home-hero-content">
+                        <div class="home-hero-label">Treino Recomendado</div>
+                        <h2 class="home-hero-title">${workoutName}<br>Série ${todayWorkout?.letter || 'A'}</h2>
+                        <p class="home-hero-meta">Série ${todayWorkout?.letter || 'A'} • ${workoutMeta}</p>
+                        
+                        <button class="btn btn-primary btn-full press-effect btn-start-today" data-workout-id="${todayWorkout?.id || ''}" style="margin-top: var(--space-2);">
+                            ${activeText}
+                        </button>
+                    </div>
+                    ${workoutImageUrl 
+                        ? `<img class="home-hero-image image-${category}" src="${workoutImageUrl}" alt="Ilustração do treino" />` 
+                        : ''
+                    }
+                </div>
+              `
+            : `
+                <div class="home-hero-slide">
+                    <div class="home-hero-content" style="max-width: 100%;">
+                        <div class="home-hero-label" style="color: var(--color-primary);">Sem Exercícios</div>
+                        <h2 class="home-hero-title">Monte seu Treino<br>Série ${todayWorkout?.letter || 'A'}</h2>
+                        <p class="home-hero-meta" style="margin-bottom: var(--space-4);">Nenhum exercício cadastrado nesta série ainda. Monte sua série personalizada!</p>
+                        
+                        <button class="btn btn-primary btn-full press-effect btn-start-today" data-workout-id="${todayWorkout?.id || ''}">
+                            MONTAR SÉRIE
+                        </button>
+                    </div>
+                </div>
+              `;
+
         return `
+            ${impersonationBannerHtml}
             <div class="view">
                 <!-- Home Header -->
                 <div class="home-header">
@@ -91,21 +143,7 @@ export class HomeView {
                 <!-- Active / Recommended Workout Hero Card -->
                 <div class="home-hero anim-scale-in">
                     <div class="home-hero-slide-wrapper">
-                        <div class="home-hero-slide">
-                            <div class="home-hero-content">
-                                <div class="home-hero-label">Treino Recomendado</div>
-                                <h2 class="home-hero-title">${displayWorkoutName}<br>Série ${todayWorkout?.letter || 'A'}</h2>
-                                <p class="home-hero-meta">Série ${todayWorkout?.letter || 'A'} • ${workoutMeta}</p>
-                                
-                                <button class="btn btn-primary btn-full press-effect btn-start-today" data-workout-id="${todayWorkout?.id || ''}" style="margin-top: var(--space-2);">
-                                    ${activeText}
-                                </button>
-                            </div>
-                            ${workoutImageUrl 
-                                ? `<img class="home-hero-image image-${category}" src="${workoutImageUrl}" alt="Ilustração do treino" />` 
-                                : ''
-                            }
-                        </div>
+                        ${heroContentHtml}
                     </div>
                 </div>
 
@@ -147,10 +185,72 @@ export class HomeView {
         `;
     }
 
+    renderTrainerDashboard() {
+        const { profile, academy, trainerStudents } = this.state;
+        
+        const studentsListHtml = trainerStudents.map(student => {
+            const details = student.student_details || {};
+            const numWorkouts = student.workouts ? student.workouts.length : 0;
+            const goalTranslations = {
+                hypertrophy: 'Hipertrofia',
+                weight_loss: 'Emagrecimento',
+                conditioning: 'Condicionamento',
+                strength: 'Força'
+            };
+            const goalText = goalTranslations[details.goal] || 'Treino Geral';
+            const numExercises = student.workouts ? student.workouts.reduce((total, w) => total + (w.exercises ? w.exercises.length : 0), 0) : 0;
+
+            return `
+                <div class="card student-card press-effect" data-student-id="${student.id}" style="padding: var(--space-4); display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-3); cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: var(--space-3);">
+                        ${student.avatar_url 
+                            ? `<img src="${student.avatar_url}" class="avatar avatar-lg" alt="${student.full_name}" />`
+                            : `<div class="avatar avatar-lg avatar-placeholder">${student.full_name.charAt(0)}</div>`
+                        }
+                        <div>
+                            <div style="font-weight: 700; font-size: var(--text-md); color: var(--color-text);">${student.full_name}</div>
+                            <div style="font-size: var(--text-xs); color: var(--color-text-secondary); margin-top: 2px;">
+                                ${goalText} • ${numWorkouts} séries • ${numExercises} exercícios
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary btn-sm btn-manage-student" data-student-id="${student.id}" style="border-color: var(--color-primary); color: var(--color-primary);">
+                        Editar Treinos
+                    </button>
+                </div>
+            `;
+        }).join('');
+
+        return `
+            <div class="view view-padded">
+                <!-- Header -->
+                <div class="home-header" style="padding: var(--space-4) 0 var(--space-5) 0;">
+                    <div>
+                        <div class="home-greeting">Painel do Personal 👋</div>
+                        <div class="home-name" style="font-size: var(--text-2xl);">${profile?.full_name || 'Prof. Lucas Ribeiro'}</div>
+                    </div>
+                    <div class="home-academy-logo" style="background-image: url('${academy?.logo_url}'); background-size: cover;"></div>
+                </div>
+
+                <!-- Search Input -->
+                <div class="input-group" style="margin-bottom: var(--space-5);">
+                    <input class="input-field" type="text" id="searchStudent" placeholder="Buscar aluno pelo nome..." style="background: var(--color-bg-card); border-color: var(--color-border);" />
+                </div>
+
+                <!-- Students list -->
+                <div>
+                    <h3 class="section-title">Meus Alunos</h3>
+                    <div id="studentsList">
+                        ${studentsListHtml}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     transitionWorkout(newLetter, direction) {
         if (selectedWorkoutLetter === newLetter) return;
         
-        const oldLetter = selectedWorkoutLetter;
         selectedWorkoutLetter = newLetter;
 
         const workouts = this.state.workouts;
@@ -158,17 +258,20 @@ export class HomeView {
         const gender = student.gender || 'male';
         
         const todayWorkout = workouts.find(w => w.letter === selectedWorkoutLetter) || workouts[0];
-        const workoutImageUrl = getWorkoutImageUrl(todayWorkout, gender);
-        const category = getDominantMuscleCategory(todayWorkout);
-        const workoutMeta = todayWorkout?.exercises?.length 
+        const hasExercises = todayWorkout?.exercises && todayWorkout.exercises.length > 0;
+
+        const workoutImageUrl = hasExercises ? getWorkoutImageUrl(todayWorkout, gender) : null;
+        const category = hasExercises ? getDominantMuscleCategory(todayWorkout) : null;
+        const workoutMeta = hasExercises 
             ? `${todayWorkout.exercises.length} exercícios` 
             : 'Nenhum exercício cadastrado';
 
         const workoutName = todayWorkout?.name || 'Treino Geral';
-        const displayWorkoutName = workoutName;
 
         const isFeaturedActive = this.state.activeWorkout && this.state.activeWorkout.workoutId === todayWorkout.id;
-        const activeText = isFeaturedActive ? 'RETOMAR TREINO' : 'ABRIR SÉRIE';
+        const activeText = isFeaturedActive 
+            ? 'RETOMAR TREINO' 
+            : hasExercises ? 'ABRIR SÉRIE' : 'MONTAR SÉRIE';
 
         // 1. Update letter card visual state in the DOM
         const seriesCards = document.querySelectorAll('.workout-letter-card:not(.btn-add-series)');
@@ -187,21 +290,34 @@ export class HomeView {
         if (wrapper && oldSlide) {
             const newSlide = document.createElement('div');
             newSlide.className = `home-hero-slide ${direction === 'left' ? 'slide-in-right-init' : 'slide-in-left-init'}`;
-            newSlide.innerHTML = `
-                <div class="home-hero-content">
-                    <div class="home-hero-label">Treino Recomendado</div>
-                    <h2 class="home-hero-title">${displayWorkoutName}<br>Série ${todayWorkout?.letter || 'A'}</h2>
-                    <p class="home-hero-meta">Série ${todayWorkout?.letter || 'A'} • ${workoutMeta}</p>
-                    
-                    <button class="btn btn-primary btn-full press-effect btn-start-today" data-workout-id="${todayWorkout?.id || ''}" style="margin-top: var(--space-2);">
-                        ${activeText}
-                    </button>
-                </div>
-                ${workoutImageUrl 
-                    ? `<img class="home-hero-image image-${category}" src="${workoutImageUrl}" alt="Ilustração do treino" />` 
-                    : ''
-                }
-            `;
+            
+            newSlide.innerHTML = hasExercises
+                ? `
+                    <div class="home-hero-content">
+                        <div class="home-hero-label">Treino Recomendado</div>
+                        <h2 class="home-hero-title">${workoutName}<br>Série ${todayWorkout?.letter || 'A'}</h2>
+                        <p class="home-hero-meta">Série ${todayWorkout?.letter || 'A'} • ${workoutMeta}</p>
+                        
+                        <button class="btn btn-primary btn-full press-effect btn-start-today" data-workout-id="${todayWorkout?.id || ''}" style="margin-top: var(--space-2);">
+                            ${activeText}
+                        </button>
+                    </div>
+                    ${workoutImageUrl 
+                        ? `<img class="home-hero-image image-${category}" src="${workoutImageUrl}" alt="Ilustração do treino" />` 
+                        : ''
+                    }
+                  `
+                : `
+                    <div class="home-hero-content" style="max-width: 100%;">
+                        <div class="home-hero-label" style="color: var(--color-primary);">Sem Exercícios</div>
+                        <h2 class="home-hero-title">Monte seu Treino<br>Série ${todayWorkout?.letter || 'A'}</h2>
+                        <p class="home-hero-meta" style="margin-bottom: var(--space-4);">Nenhum exercício cadastrado nesta série ainda. Monte sua série personalizada!</p>
+                        
+                        <button class="btn btn-primary btn-full press-effect btn-start-today" data-workout-id="${todayWorkout?.id || ''}">
+                            MONTAR SÉRIE
+                        </button>
+                    </div>
+                  `;
 
             wrapper.appendChild(newSlide);
 
@@ -231,6 +347,60 @@ export class HomeView {
     }
 
     afterRender() {
+        const { profile, isImpersonating } = this.state;
+
+        // 1. Trainer Dashboard binds
+        if (profile?.role === 'trainer' && !isImpersonating) {
+            // Search filter
+            const searchInput = document.getElementById('searchStudent');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.toLowerCase();
+                    const cards = document.querySelectorAll('.student-card');
+                    cards.forEach(card => {
+                        const name = card.querySelector('div div').textContent.toLowerCase();
+                        if (name.includes(query)) {
+                            card.style.display = 'flex';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            }
+
+            // Click listener for student card / manager
+            const studentsList = document.getElementById('studentsList');
+            if (studentsList) {
+                studentsList.addEventListener('click', (e) => {
+                    const card = e.target.closest('.student-card');
+                    if (card) {
+                        const studentId = card.dataset.studentId;
+                        const student = this.state.trainerStudents.find(s => s.id === studentId);
+                        if (student) {
+                            store.impersonateStudent(student);
+                            // Reroute back to home which will now render Aluno view under impersonation
+                            router.handleRouting();
+                        }
+                    }
+                });
+            }
+            return;
+        }
+
+        // 2. Impersonating exit button bind
+        if (isImpersonating) {
+            const exitBtn = document.getElementById('btnExitImpersonation');
+            if (exitBtn) {
+                exitBtn.addEventListener('click', () => {
+                    store.stopImpersonation();
+                    // Clear selected letter cache
+                    selectedWorkoutLetter = '';
+                    router.handleRouting();
+                });
+            }
+        }
+
+        // 3. Aluno / Impersonated Aluno binds
         const startBtn = document.querySelector('.btn-start-today');
         if (startBtn) {
             startBtn.addEventListener('click', () => {
@@ -268,7 +438,6 @@ export class HomeView {
             let startX = 0;
             let startY = 0;
             
-            // Touch handlers
             heroEl.addEventListener('touchstart', (e) => {
                 startX = e.touches[0].clientX;
                 startY = e.touches[0].clientY;
@@ -278,7 +447,6 @@ export class HomeView {
                 const diffX = e.changedTouches[0].clientX - startX;
                 const diffY = e.changedTouches[0].clientY - startY;
                 
-                // Only trigger if horizontal drag is dominant and exceeds threshold
                 if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
                     const baseLetters = ['A', 'B', 'C'];
                     const workouts = store.getState().workouts;
@@ -288,7 +456,6 @@ export class HomeView {
                     const currentIndex = activeLetters.indexOf(selectedWorkoutLetter);
                     
                     if (diffX < 0) {
-                        // Swiped Left -> Next Series
                         if (currentIndex < activeLetters.length - 1) {
                             const nextLetter = activeLetters[currentIndex + 1];
                             const hasWorkout = workouts.find(w => w.letter === nextLetter);
@@ -297,7 +464,6 @@ export class HomeView {
                             }
                         }
                     } else {
-                        // Swiped Right -> Previous Series
                         if (currentIndex > 0) {
                             const prevLetter = activeLetters[currentIndex - 1];
                             const hasWorkout = workouts.find(w => w.letter === prevLetter);
@@ -315,14 +481,13 @@ export class HomeView {
             let mouseStartY = 0;
 
             heroEl.addEventListener('mousedown', (e) => {
-                if (e.button !== 0) return; // Only track main click
+                if (e.button !== 0) return;
                 isDragging = true;
                 mouseStartX = e.clientX;
                 mouseStartY = e.clientY;
                 heroEl.style.cursor = 'grabbing';
             });
 
-            // Prevent browser image dragging interference
             const heroImg = heroEl.querySelector('.home-hero-image');
             if (heroImg) {
                 heroImg.addEventListener('dragstart', (e) => e.preventDefault());
@@ -345,7 +510,6 @@ export class HomeView {
                     const currentIndex = activeLetters.indexOf(selectedWorkoutLetter);
                     
                     if (diffX < 0) {
-                        // Dragged Left -> Next Series
                         if (currentIndex < activeLetters.length - 1) {
                             const nextLetter = activeLetters[currentIndex + 1];
                             const hasWorkout = workouts.find(w => w.letter === nextLetter);
@@ -354,7 +518,6 @@ export class HomeView {
                             }
                         }
                     } else {
-                        // Dragged Right -> Previous Series
                         if (currentIndex > 0) {
                             const prevLetter = activeLetters[currentIndex - 1];
                             const hasWorkout = workouts.find(w => w.letter === prevLetter);
@@ -367,7 +530,7 @@ export class HomeView {
             });
         }
 
-        // Add dynamic series listener
+        // Add dynamic series listener (Create brand new blank series)
         const addSeriesBtn = document.querySelector('.btn-add-series');
         if (addSeriesBtn) {
             addSeriesBtn.addEventListener('click', async () => {
@@ -380,28 +543,14 @@ export class HomeView {
                 const nextLetter = allPossible.find(l => !activeLetters.includes(l));
 
                 if (nextLetter) {
-                    const { mockExercises } = await import('../lib/mockData.js');
                     const { Toast } = await import('../components/Toast.js');
 
-                    // Pick 2 random exercises for the new series
-                    const newExercises = [];
-                    if (mockExercises && mockExercises.length > 0) {
-                        const firstEx = mockExercises[Math.floor(Math.random() * mockExercises.length)];
-                        let secondEx = mockExercises[Math.floor(Math.random() * mockExercises.length)];
-                        if (firstEx.id === secondEx.id) {
-                            secondEx = mockExercises[(mockExercises.indexOf(firstEx) + 1) % mockExercises.length];
-                        }
-                        newExercises.push(
-                            { id: `we-new-1-${nextLetter}`, exercise: firstEx, sets: 3, reps: '12', rest_seconds: 60, order_index: 0, notes: 'Executar com cuidado' },
-                            { id: `we-new-2-${nextLetter}`, exercise: secondEx, sets: 4, reps: '10', rest_seconds: 45, order_index: 1, notes: 'Movimento controlado' }
-                        );
-                    }
-
+                    // Create a blank series so the student / trainer can customize it
                     const newWorkout = {
                         id: `w-new-${nextLetter.toLowerCase()}`,
-                        name: nextLetter === 'D' ? 'Cardio Regenerativo' : 'Abdômen e Core',
+                        name: 'Treino Geral',
                         letter: nextLetter,
-                        exercises: newExercises
+                        exercises: []
                     };
 
                     selectedWorkoutLetter = nextLetter;
@@ -409,8 +558,6 @@ export class HomeView {
                     store.setState({ workouts: updatedWorkouts });
                     
                     Toast.show(`Série ${nextLetter} criada com sucesso!`, 'success');
-                    
-                    // Reload current view
                     router.handleRouting();
                 }
             });

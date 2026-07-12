@@ -623,3 +623,39 @@
 .profile-logout {
     margin: var(--space-6) var(--space-4);
 }
+
+/* ---- Personal Trainer Dashboard & Impersonation Styles ---- */
+.trainer-edit-banner {
+    background: var(--color-primary);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.student-card {
+    transition: transform var(--duration-fast) var(--ease-out), border-color var(--duration-fast);
+}
+
+.student-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-primary-alpha-strong);
+}
+
+.student-card .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.student-card .avatar-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary-alpha);
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 18px;
+}
+

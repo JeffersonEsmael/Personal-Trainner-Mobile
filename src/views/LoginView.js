@@ -59,10 +59,16 @@ export class LoginView {
 
                 <div class="login-footer">
                     <p>Branding customizado da academia ativa</p>
-                    <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: center; font-size: 11px;">
+                    <div style="margin-top: 6px; display: flex; gap: 8px; justify-content: center; font-size: 11px;">
                         <a href="?gym=alpha" style="color: #FF6B2C; text-decoration: underline;">Alpha</a> |
                         <a href="?gym=blackwave" style="color: #8E8E93; text-decoration: underline;">BlackWave</a> |
                         <a href="?gym=evolution" style="color: #007AFF; text-decoration: underline;">Evolution</a>
+                    </div>
+                    <div style="margin-top: 12px; font-size: 11px; color: var(--color-text-secondary); line-height: 1.4;">
+                        <strong>Contas de Teste (Senha: 123456):</strong><br>
+                        Aluno Ativo: <span style="color: var(--color-primary);">aluno@academia.com</span><br>
+                        Aluno Novo (Vazio): <span style="color: var(--color-primary);">novato@academia.com</span><br>
+                        Personal Trainer: <span style="color: var(--color-primary);">professor@academia.com</span>
                     </div>
                 </div>
             </div>

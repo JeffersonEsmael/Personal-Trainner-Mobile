@@ -37,6 +37,9 @@ export async function login(email, password) {
                         profile: { full_name: 'Gestor ' + (state.academy?.name || 'Academia'), role: 'academy', academy_id: state.academy?.id }
                     });
                     resolve({ success: true, error: null });
+                } else if (email.toLowerCase().includes('novato') || email.toLowerCase().includes('new')) {
+                    store.initializeEmptyStudentData(state.academy?.slug || 'alpha');
+                    resolve({ success: true, error: null });
                 } else {
                     // Default to student login
                     store.initializeMockData(state.academy?.slug || 'alpha');
