@@ -473,3 +473,44 @@ export const mockHistory = [
         exercises_total: 1
     }
 ];
+
+export const mockStudents = [
+    {
+        id: 'user-joao-uuid',
+        full_name: 'João Silva',
+        email: 'aluno@academia.com',
+        avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
+        student_details: { age: 24, weight: 76.5, height: 1.78, goal: 'hypertrophy', experience: 'beginner', trainer_name: 'Prof. Lucas Ribeiro', gender: 'male' },
+        workouts: mockWorkouts
+    },
+    {
+        id: 'user-gabriel-uuid',
+        full_name: 'Gabriel Novato',
+        email: 'novato@academia.com',
+        avatar_url: '',
+        student_details: { age: 20, weight: 70.0, height: 1.75, goal: 'conditioning', experience: 'beginner', trainer_name: 'Prof. Lucas Ribeiro', gender: 'male' },
+        workouts: [
+            { id: 'w-empty-a', name: 'Treino Geral', letter: 'A', exercises: [] },
+            { id: 'w-empty-b', name: 'Treino Geral', letter: 'B', exercises: [] },
+            { id: 'w-empty-c', name: 'Treino Geral', letter: 'C', exercises: [] }
+        ]
+    },
+    {
+        id: 'user-maria-uuid',
+        full_name: 'Maria Santos',
+        email: 'maria@academia.com',
+        avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop',
+        student_details: { age: 28, weight: 62.0, height: 1.65, goal: 'weight_loss', experience: 'intermediate', trainer_name: 'Prof. Lucas Ribeiro', gender: 'female' },
+        workouts: [
+            {
+                id: 'w-maria-a',
+                name: 'Funcional e HIIT',
+                letter: 'A',
+                exercises: [
+                    { id: 'we-m1', exercise: mockExercises[4], sets: 4, reps: '15', rest_seconds: 45, weight_kg: 5, order_index: 0, notes: 'Foco na velocidade' }
+                ]
+            }
+        ]
+    }
+];
+
