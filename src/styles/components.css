@@ -371,45 +371,123 @@
 .splash-screen {
     position: absolute;
     inset: 0;
-    background: var(--color-bg);
+    background: radial-gradient(circle at center, #12121A 0%, #050508 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     z-index: var(--z-splash);
-    gap: var(--space-6);
+    gap: var(--space-8);
 }
 
-.splash-logo {
-    width: 120px;
-    height: 120px;
-    animation: splashLogo 0.8s var(--ease-spring) forwards;
+.splash-logo-container {
+    animation: splashLogo 1s var(--ease-spring) forwards;
 }
 
-.splash-name {
-    font-size: var(--text-2xl);
-    font-weight: var(--weight-bold);
-    color: var(--color-text);
-    animation: fadeIn 0.6s 0.4s var(--ease-out) forwards;
+.splash-academy-branding {
+    position: absolute;
+    bottom: 50px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    animation: fadeIn 0.8s 0.6s var(--ease-out) forwards;
     opacity: 0;
 }
 
-.splash-bar {
-    width: 120px;
-    height: 3px;
-    background: var(--color-bg-card);
-    border-radius: var(--radius-full);
-    overflow: hidden;
-    animation: fadeIn 0.6s 0.6s var(--ease-out) forwards;
-    opacity: 0;
+.splash-academy-logo {
+    width: 24px;
+    height: 24px;
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--radius-sm);
 }
 
-.splash-bar-fill {
-    height: 100%;
-    background: var(--gradient-primary);
-    border-radius: var(--radius-full);
-    animation: progressFill 1.5s 0.8s var(--ease-out) forwards;
-    width: 0;
+.splash-academy-name {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* ---- Moove Logo Component ---- */
+.moove-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-weight: 800;
+    font-size: 54px;
+    color: #ffffff;
+    letter-spacing: -0.04em;
+    gap: 8px;
+    user-select: none;
+    line-height: 1;
+}
+
+.moove-logo .logo-letter {
+    display: inline-block;
+    line-height: 1;
+    font-weight: 800;
+}
+
+.moove-logo .logo-track {
+    position: relative;
+    width: 104px;
+    height: 40px;
+    border: 5px solid #ffffff;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    box-sizing: border-box;
+    margin: 0 4px;
+}
+
+.moove-logo .logo-track-bg-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    transition: opacity 0.3s ease;
+}
+
+/* Fading dots matching image 1 */
+.moove-logo .logo-track-dot-static-1 { opacity: 0.15; }
+.moove-logo .logo-track-dot-static-2 { opacity: 0.35; }
+.moove-logo .logo-track-dot-static-3 { opacity: 0.65; }
+.moove-logo .logo-track-dot-static-4 { opacity: 1.0; }
+
+/* The animated loader dot (Ping-Pong back and forth) */
+.moove-logo .logo-animated-dot {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    margin-top: -4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.9), 0 0 4px rgba(255, 255, 255, 0.5);
+    animation: moovePingPong 1.6s infinite ease-in-out;
+}
+
+/* Background dots during loading: make them all very faint guides */
+.moove-logo.loading .logo-track-bg-dot {
+    opacity: 0.15;
+}
+
+@keyframes moovePingPong {
+    0% {
+        left: 10px;
+    }
+    50% {
+        left: 76px;
+    }
+    100% {
+        left: 10px;
+    }
 }
 
 /* ---- Video Player ---- */

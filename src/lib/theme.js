@@ -42,7 +42,7 @@ export function applyAcademyTheme(academy) {
     }
 
     // Save app styling title meta
-    document.title = academy.name;
+    document.title = `Moove — ${academy.name}`;
     const themeMeta = document.querySelector('meta[name="theme-color"]');
     if (themeMeta) {
         themeMeta.setAttribute('content', '#0A0A0F'); // keep premium dark bg

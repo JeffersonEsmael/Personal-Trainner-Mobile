@@ -121,13 +121,37 @@ export class ProfileView {
     }
 
     afterRender() {
-        // Signout logic
-        document.getElementById('btnSignout').addEventListener('click', async () => {
-            if (confirm('Tem certeza de que deseja sair?')) {
+        document.getElementById('btnSignout').addEventListener('click', () => {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content" style="text-align: center; padding: var(--space-5);">
+                    <div class="modal-handle"></div>
+                    <h3 style="font-weight:bold; font-size:18px; margin-bottom:var(--space-2); color: var(--color-error);">Sair da Conta</h3>
+                    <p style="font-size:14px; color:var(--color-text-secondary); margin-bottom:var(--space-5);">Tem certeza de que deseja sair da sua conta?</p>
+                    
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <button class="btn btn-secondary btn-full press-effect" id="btnConfirmSignout" style="color: var(--color-error); border-color: rgba(255, 69, 58, 0.2);">
+                            Sair
+                        </button>
+                        <button class="btn btn-primary btn-full press-effect" id="btnCancelSignout">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            document.getElementById('btnConfirmSignout').addEventListener('click', async () => {
+                modal.remove();
                 await logout();
                 Toast.show('Você saiu da sua conta.', 'info');
                 router.navigate('/login');
-            }
+            });
+
+            document.getElementById('btnCancelSignout').addEventListener('click', () => {
+                modal.remove();
+            });
         });
 
         // Edit profile picture photo click handler

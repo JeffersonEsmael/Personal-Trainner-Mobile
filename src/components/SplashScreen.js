@@ -20,29 +20,39 @@ export class SplashScreen {
             this.overlay = document.createElement('div');
             this.overlay.className = 'splash-screen';
             
-            // Custom splash configuration based on White Label settings
             this.overlay.innerHTML = `
-                <div class="splash-logo" style="background-image: url(${this.academy.logo_url}); background-size: cover; border-radius: var(--radius-xl);">
-                    <svg viewBox="0 0 100 100" width="100%" height="100%" fill="none" stroke="var(--color-primary)" stroke-width="4">
-                        <circle cx="50" cy="50" r="40" stroke-dasharray="10 10" />
-                    </svg>
+                <div class="splash-logo-container">
+                    <div class="moove-logo loading">
+                        <span class="logo-letter">M</span>
+                        <div class="logo-track">
+                            <div class="logo-track-bg-dot"></div>
+                            <div class="logo-track-bg-dot"></div>
+                            <div class="logo-track-bg-dot"></div>
+                            <div class="logo-track-bg-dot"></div>
+                            <div class="logo-animated-dot"></div>
+                        </div>
+                        <span class="logo-letter">V</span>
+                        <span class="logo-letter">E</span>
+                    </div>
                 </div>
-                <h1 class="splash-name">${this.academy.name}</h1>
-                <div class="splash-bar">
-                    <div class="splash-bar-fill"></div>
-                </div>
+                ${this.academy ? `
+                    <div class="splash-academy-branding">
+                        ${this.academy.logo_url ? `<span class="splash-academy-logo" style="background-image: url('${this.academy.logo_url}');"></span>` : ''}
+                        <span class="splash-academy-name">${this.academy.name}</span>
+                    </div>
+                ` : ''}
             `;
 
             document.body.appendChild(this.overlay);
 
-            // Wait 2.2 seconds for full animations to execute before removing
+            // Wait 2.5 seconds for full animations to execute before removing
             setTimeout(() => {
                 this.overlay.style.animation = 'fadeOut 0.4s var(--ease-out) forwards';
                 this.overlay.addEventListener('animationend', () => {
                     this.overlay.remove();
                     resolve();
                 });
-            }, 2200);
+            }, 2500);
         });
     }
 }

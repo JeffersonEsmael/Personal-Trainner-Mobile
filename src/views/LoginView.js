@@ -20,9 +20,25 @@ export class LoginView {
             <div class="login-view">
                 <div class="login-bg-glow"></div>
                 
-                <div class="login-logo" style="background-image: url('${academy.logo_url}'); background-size: cover;"></div>
+                <div class="login-brand-header">
+                    <div class="moove-logo">
+                        <span class="logo-letter">M</span>
+                        <div class="logo-track">
+                            <div class="logo-track-bg-dot logo-track-dot-static-1"></div>
+                            <div class="logo-track-bg-dot logo-track-dot-static-2"></div>
+                            <div class="logo-track-bg-dot logo-track-dot-static-3"></div>
+                            <div class="logo-track-bg-dot logo-track-dot-static-4"></div>
+                        </div>
+                        <span class="logo-letter">V</span>
+                        <span class="logo-letter">E</span>
+                    </div>
+                </div>
                 
-                <h1 class="login-title">${academy.name}</h1>
+                <div class="login-academy-badge">
+                    ${academy.logo_url ? `<div class="login-academy-logo" style="background-image: url('${academy.logo_url}');"></div>` : ''}
+                    <span class="login-academy-title">${academy.name}</span>
+                </div>
+                
                 <p class="login-subtitle">Seu Personal Trainer Digital</p>
                 
                 <form class="login-form" id="loginForm">
